@@ -1,0 +1,435 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "CRM API GetMoto",
+    "version": "1.0.0",
+    "description": "API para gestão de oficina de motos - Sistema de CRM completo"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Endpoints de autenticação e autorização"
+    },
+    {
+      "name": "Users",
+      "description": "Gerenciamento de usuários do sistema"
+    },
+    {
+      "name": "Customers",
+      "description": "Gerenciamento de clientes"
+    },
+    {
+      "name": "Services",
+      "description": "Gerenciamento de serviços/ordens de serviço"
+    },
+    {
+      "name": "Products",
+      "description": "Gerenciamento de produtos e estoque"
+    },
+    {
+      "name": "Cash Flow",
+      "description": "Gerenciamento de fluxo de caixa"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT Authorization header usando o esquema Bearer. Exemplo: \"Bearer {token}\""
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/stock/movements": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/summary": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/summary/categories": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "email": {
+          "type": "string",
+          "example": "john@example.com"
+        },
+        "role": {
+          "type": "string",
+          "example": "ADMIN"
+        },
+        "active": {
+          "type": "boolean",
+          "example": true
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2024-01-01T00:00:00.000Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2024-01-01T00:00:00.000Z"
+        }
+      }
+    },
+    "Customer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "example": "Jane Smith"
+        },
+        "email": {
+          "type": "string",
+          "example": "jane@example.com"
+        },
+        "phone": {
+          "type": "string",
+          "example": "11999999999"
+        },
+        "cpf": {
+          "type": "string",
+          "example": "12345678900"
+        },
+        "address": {
+          "type": "string",
+          "example": "Rua Exemplo, 123"
+        },
+        "city": {
+          "type": "string",
+          "example": "São Paulo"
+        },
+        "state": {
+          "type": "string",
+          "example": "SP"
+        },
+        "zipCode": {
+          "type": "string",
+          "example": "01234567"
+        }
+      }
+    },
+    "Service": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "customerId": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "motorcycleId": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "description": {
+          "type": "string",
+          "example": "Troca de óleo e filtro"
+        },
+        "status": {
+          "type": "string",
+          "example": "IN_PROGRESS"
+        },
+        "laborCost": {
+          "type": "number",
+          "example": 100
+        },
+        "totalCost": {
+          "type": "number",
+          "example": 250
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "example": "Óleo Motul 10W40"
+        },
+        "code": {
+          "type": "string",
+          "example": "OIL001"
+        },
+        "barcode": {
+          "type": "string",
+          "example": "7891234567890"
+        },
+        "costPrice": {
+          "type": "number",
+          "example": 50
+        },
+        "salePrice": {
+          "type": "number",
+          "example": 80
+        },
+        "stockQuantity": {
+          "type": "number",
+          "example": 25
+        },
+        "minStock": {
+          "type": "number",
+          "example": 5
+        }
+      }
+    },
+    "CashFlow": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid"
+        },
+        "type": {
+          "type": "string",
+          "example": "INCOME"
+        },
+        "category": {
+          "type": "string",
+          "example": "Serviços"
+        },
+        "amount": {
+          "type": "number",
+          "example": 250
+        },
+        "description": {
+          "type": "string",
+          "example": "Pagamento de serviço #123"
+        },
+        "date": {
+          "type": "string",
+          "example": "2024-01-01T00:00:00.000Z"
+        }
+      }
+    }
+  }
+}

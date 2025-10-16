@@ -1,0 +1,60 @@
+services:
+  api:
+    image: ghcr.io/kralluz/crm_api_getmoto:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      no_cache: true
+
+    container_name: crm-api
+
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/crm_getmoto?schema=public
+      - JWT_SECRET=your-super-secret-key-change-this-in-production
+      - JWT_EXPIRES_IN=7d
+      - CORS_ORIGIN=*
+      # Memory limit for Node.js
+      - NODE_OPTIONS=--max-old-space-size=2048
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    deploy:
+      mode: replicated
+      replicas: 1
+
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+      restart_policy:
+        condition: any
+
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+
+      endpoint_mode: vip
+
+    ports:
+      - "3000:3000"
