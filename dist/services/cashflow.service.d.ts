@@ -170,21 +170,15 @@ export declare class CashFlowService {
     }>;
     delete(id: string): Promise<void>;
     getSummary(startDate?: string, endDate?: string): Promise<{
-        incomes: {
-            total: number;
-            count: number;
-        };
-        expenses: {
-            total: number;
-            count: number;
-        };
+        totalIncome: number;
+        totalExpense: number;
         balance: number;
     }>;
-    getCategorySummary(startDate?: string, endDate?: string): Promise<(import(".prisma/client").Prisma.PickEnumerable<import(".prisma/client").Prisma.CashFlowGroupByOutputType, ("type" | "category")[]> & {
-        _count: number;
-        _sum: {
-            amount: import("@prisma/client/runtime/library").Decimal | null;
-        };
-    })[]>;
+    getCategorySummary(startDate?: string, endDate?: string): Promise<{
+        category: string;
+        type: import(".prisma/client").$Enums.TransactionType;
+        total: number;
+        count: number;
+    }[]>;
 }
 //# sourceMappingURL=cashflow.service.d.ts.map

@@ -105,19 +105,13 @@ export class CashFlowService {
       _count: true,
     });
 
-    const incomesTotal = incomes._sum.amount ? Number(incomes._sum.amount) : 0;
-    const expensesTotal = expenses._sum.amount ? Number(expenses._sum.amount) : 0;
-    const balance = incomesTotal - expensesTotal;
+    const totalIncome = incomes._sum.amount ? Number(incomes._sum.amount) : 0;
+    const totalExpense = expenses._sum.amount ? Number(expenses._sum.amount) : 0;
+    const balance = totalIncome - totalExpense;
 
     return {
-      incomes: {
-        total: incomesTotal,
-        count: incomes._count,
-      },
-      expenses: {
-        total: expensesTotal,
-        count: expenses._count,
-      },
+      totalIncome,
+      totalExpense,
       balance,
     };
   }
@@ -138,6 +132,11 @@ export class CashFlowService {
       _count: true,
     });
 
-    return results;
+    return results.map((item) => ({
+      category: item.category,
+      type: item.type,
+      total: Number(item._sum.amount || 0),
+      count: item._count,
+    }));
   }
 }
