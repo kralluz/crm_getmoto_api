@@ -37,7 +37,7 @@ describe('Auth Middleware', () => {
 
       await authMiddleware(mockRequest as Request, mockResponse as Response, nextFunction);
 
-      expect(jwt.verify).toHaveBeenCalledWith('valid.jwt.token', process.env.JWT_SECRET);
+      expect(jwt.verify).toHaveBeenCalledWith('valid.jwt.token', process.env.JWT_SECRET || 'your-secret-key-here');
       expect(mockRequest.user).toEqual(mockPayload);
       expect(nextFunction).toHaveBeenCalled();
       expect(mockResponse.status).not.toHaveBeenCalled();

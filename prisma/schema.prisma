@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model cash_flow {
   cash_flow_id        BigInt             @id @default(autoincrement())
   service_order_id    BigInt?
@@ -66,7 +65,6 @@ model service {
   services_realized     services_realized[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model service_order {
   service_order_id     BigInt              @id @default(autoincrement())
   service_category_id  BigInt?
@@ -89,7 +87,6 @@ model service_order {
   services_realized    services_realized[]
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model service_products {
   service_product_id BigInt        @id @default(autoincrement())
   product_id         BigInt
@@ -105,7 +102,6 @@ model service_products {
   @@index([service_order_id], map: "idx_service_products_order")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model services_realized {
   services_realized_id BigInt        @id @default(autoincrement())
   service_category_id  BigInt
@@ -121,7 +117,6 @@ model services_realized {
   @@index([service_order_id], map: "idx_services_realized_order")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model stock_move {
   stock_move_id BigInt   @id @default(autoincrement())
   product_id    BigInt
@@ -133,7 +128,7 @@ model stock_move {
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now())
   products      products @relation(fields: [product_id], references: [product_id], onUpdate: NoAction)
-  users         User?   @relation(fields: [user_id], references: [user_id], onUpdate: NoAction)
+  users         User?    @relation(fields: [user_id], references: [user_id], onUpdate: NoAction)
 
   @@index([product_id, created_at], map: "idx_stock_move_product_time")
 }
@@ -175,21 +170,6 @@ enum PaymentMethod {
   CHECK
 }
 
-enum PaymentStatus {
-  PENDING
-  PAID
-  OVERDUE
-  CANCELLED
-}
-
-enum ServiceStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  WAITING_PARTS
-}
-
 enum StockMovementType {
   ENTRY
   EXIT
@@ -201,9 +181,4 @@ enum TransactionType {
   EXPENSE
 }
 
-enum UserRole {
-  ADMIN
-  MANAGER
-  MECHANIC
-  ATTENDANT
-}
+

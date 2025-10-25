@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\chenr\\Documents\\crm_getmoto_api\\logs\\.52580bc3fb009a36cf433a6729437d4ae9b6df5b-audit.json",
+    "files": [
+        {
+            "date": 1761426189402,
+            "name": "C:\\Users\\chenr\\Documents\\crm_getmoto_api\\logs\\combined-2025-10-25.log",
+            "hash": "1c4d0c1923674cacf3a6452f11586cdbb087b794d1cf9a31d761fbee8bd9ad4b"
+        }
+    ],
+    "hashType": "sha256"
+}

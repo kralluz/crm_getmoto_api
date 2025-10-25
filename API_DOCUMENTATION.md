@@ -994,6 +994,8 @@ A API retorna erros padronizados no seguinte formato:
 
 ## 📊 Roles e Permissões
 
+> **ℹ️ Implementação Técnica**: Os roles são armazenados como `VARCHAR(50)` no banco de dados e validados através de uma **CHECK constraint** (`role IN ('ADMIN', 'MANAGER', 'MECHANIC', 'ATTENDANT')`), não através de enum PostgreSQL. A validação é feita tanto no nível do banco quanto no nível da aplicação (Zod schema).
+
 | Role | Descrição | Permissões |
 |------|-----------|------------|
 | **ADMIN** | Administrador | ✅ Acesso total ao sistema<br>✅ Deletar qualquer recurso<br>✅ Gerenciar usuários<br>✅ Acesso a todos os relatórios |

@@ -2,8 +2,7 @@ import { z } from 'zod';
 import {
   createPaymentSchema,
   updatePaymentSchema,
-  PaymentMethodEnum,
-  PaymentStatusEnum
+  PaymentMethodEnum
 } from '../schemas/payment.schema';
 
 // ATENÇÃO: Não existe tabela 'payments' no banco de dados!
@@ -14,4 +13,3 @@ import {
 export type CreatePaymentInput = z.infer<typeof createPaymentSchema>;
 export type UpdatePaymentInput = z.infer<typeof updatePaymentSchema>;
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
-export type PaymentStatus = z.infer<typeof PaymentStatusEnum>;

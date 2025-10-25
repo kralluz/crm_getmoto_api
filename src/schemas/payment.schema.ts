@@ -7,14 +7,12 @@ import { z } from 'zod';
 
 // Enums definidos no Prisma (mantidos para referência)
 export const PaymentMethodEnum = z.enum(['CASH', 'CREDIT_CARD', 'DEBIT_CARD', 'PIX', 'BANK_TRANSFER', 'CHECK']);
-export const PaymentStatusEnum = z.enum(['PENDING', 'PAID', 'OVERDUE', 'CANCELLED']);
 
 // Schemas abaixo são apenas para compatibilidade - NÃO usar
 export const createPaymentSchema = z.object({
   serviceId: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço deve ser positivo')),
   amount: z.number().min(0, 'Valor deve ser positivo'),
   method: PaymentMethodEnum,
-  status: PaymentStatusEnum.optional(),
   dueDate: z.string().datetime().optional().nullable(),
   paymentDate: z.string().datetime().optional().nullable(),
   notes: z.string().optional().nullable(),
@@ -24,7 +22,6 @@ export const updatePaymentSchema = z.object({
   serviceId: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço deve ser positivo')).optional(),
   amount: z.number().min(0, 'Valor deve ser positivo').optional(),
   method: PaymentMethodEnum.optional(),
-  status: PaymentStatusEnum.optional(),
   dueDate: z.string().datetime().optional().nullable(),
   paymentDate: z.string().datetime().optional().nullable(),
   notes: z.string().optional().nullable(),
