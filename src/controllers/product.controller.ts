@@ -17,29 +17,29 @@ export class ProductController {
   }
 
   async getById(req: Request, res: Response) {
-    const product = await productService.getById(req.params.id);
+    const product = await productService.getById(Number(req.params.id));
     return res.json(product);
   }
 
   async update(req: Request, res: Response) {
-    const product = await productService.update(req.params.id, req.body);
+    const product = await productService.update(Number(req.params.id), req.body);
     return res.json(product);
   }
 
   async delete(req: Request, res: Response) {
-    await productService.delete(req.params.id);
+    await productService.delete(Number(req.params.id));
     return res.status(204).send();
   }
 
   async addStockMovement(req: Request, res: Response) {
-    const movement = await productService.addStockMovement(req.body);
+    const movement = await productService.addStockMove(req.body);
     return res.status(201).json(movement);
   }
 
   async getStockMovements(req: Request, res: Response) {
     const { productId, startDate, endDate } = req.query;
-    const movements = await productService.getStockMovements(
-      productId as string,
+    const movements = await productService.getStockMoves(
+      productId ? Number(productId) : undefined,
       startDate as string,
       endDate as string
     );

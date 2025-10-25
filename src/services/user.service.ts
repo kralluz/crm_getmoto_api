@@ -5,30 +5,32 @@ import { UpdateUserInput } from '../interfaces/user.interface';
 
 export class UserService {
   async getAll() {
-    return await prisma.user.findMany({
+    return await prisma.users.findMany({
       select: {
-        id: true,
+        user_id: true,
         name: true,
         email: true,
         role: true,
-        active: true,
-        createdAt: true,
-        updatedAt: true,
+        position: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true,
       },
     });
   }
 
-  async getById(id: string) {
-    const user = await prisma.user.findUnique({
-      where: { id },
+  async getById(user_id: bigint | number) {
+    const user = await prisma.users.findUnique({
+      where: { user_id: BigInt(user_id) },
       select: {
-        id: true,
+        user_id: true,
         name: true,
         email: true,
         role: true,
-        active: true,
-        createdAt: true,
-        updatedAt: true,
+        position: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true,
       },
     });
 
@@ -39,11 +41,11 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, data: UpdateUserInput) {
-    const user = await this.getById(id);
+  async update(user_id: bigint | number, data: UpdateUserInput) {
+    const user = await this.getById(user_id);
 
     if (data.email && data.email !== user.email) {
-      const emailExists = await prisma.user.findUnique({
+      const emailExists = await prisma.users.findUnique({
         where: { email: data.email },
       });
       if (emailExists) {
@@ -51,28 +53,40 @@ export class UserService {
       }
     }
 
-    const updateData: any = { ...data };
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.email !== undefined) updateData.email = data.email;
+    if (data.role !== undefined) updateData.role = data.role;
+    if (data.position !== undefined) updateData.position = data.position;
+    if (data.is_active !== undefined) updateData.is_active = data.is_active;
+
     if (data.password) {
-      updateData.password = await hashPassword(data.password);
+      updateData.password_hash = await hashPassword(data.password);
     }
 
-    return await prisma.user.update({
-      where: { id },
+    return await prisma.users.update({
+      where: { user_id: BigInt(user_id) },
       data: updateData,
       select: {
-        id: true,
+        user_id: true,
         name: true,
         email: true,
         role: true,
-        active: true,
-        createdAt: true,
-        updatedAt: true,
+        position: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true,
       },
     });
   }
 
-  async delete(id: string) {
-    await this.getById(id);
-    await prisma.user.delete({ where: { id } });
+  async delete(user_id: bigint | number) {
+    await this.getById(user_id);
+
+    // Soft delete - marca como inativo
+    return await prisma.users.update({
+      where: { user_id: BigInt(user_id) },
+      data: { is_active: false },
+    });
   }
 }

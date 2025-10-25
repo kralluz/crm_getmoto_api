@@ -7,100 +7,105 @@ import { LoginInput, CreateUserInput, AuthResponse } from '../interfaces/user.in
 export class AuthService {
   async register(data: CreateUserInput): Promise<AuthResponse> {
     // Verificar se email já existe
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email: data.email },
     });
 
     if (existingUser) {
-      throw AppError.conflict('Email já cadastrado');
+      throw new AppError('Email já cadastrado', 409);
     }
 
     // Hash da senha
     const hashedPassword = await hashPassword(data.password);
 
     // Criar usuário
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
-        ...data,
-        password: hashedPassword,
+        name: data.name,
+        email: data.email,
+        password_hash: hashedPassword,
+        role: data.role || 'ATTENDANT',
+        position: data.position || null,
+        is_active: data.is_active ?? true,
       },
     });
 
     // Gerar token JWT
     const token = generateToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
+      userId: Number(user.user_id),
+      email: user.email!,
+      role: user.role!,
     });
 
     return {
       token,
       user: {
-        id: user.id,
+        user_id: user.user_id,
         name: user.name,
-        email: user.email,
-        role: user.role,
+        email: user.email!,
+        role: user.role as any,
       },
     };
   }
 
   async login(data: LoginInput): Promise<AuthResponse> {
     // Buscar usuário por email
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { email: data.email },
     });
 
     // Verificar se usuário existe
-    if (!user) {
-      throw AppError.unauthorized('Credenciais inválidas');
+    if (!user || !user.email || !user.password_hash) {
+      throw new AppError('Credenciais inválidas', 401);
     }
 
     // Verificar se usuário está ativo
-    if (!user.active) {
-      throw AppError.unauthorized('Usuário inativo');
+    if (!user.is_active) {
+      throw new AppError('Usuário inativo', 401);
     }
 
     // Verificar senha
-    const isPasswordValid = await comparePassword(data.password, user.password);
+    const isPasswordValid = await comparePassword(data.password, user.password_hash);
 
     if (!isPasswordValid) {
-      throw AppError.unauthorized('Credenciais inválidas');
+      throw new AppError('Credenciais inválidas', 401);
     }
 
     // Gerar token JWT
     const token = generateToken({
-      userId: user.id,
+      userId: Number(user.user_id),
       email: user.email,
-      role: user.role,
+      role: user.role || 'ATTENDANT',
     });
 
     return {
       token,
       user: {
-        id: user.id,
+        user_id: user.user_id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: (user.role || 'ATTENDANT') as any,
       },
     };
   }
 
-  async me(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
+  async me(userId: bigint | number) {
+    const user = await prisma.users.findUnique({
+      where: { user_id: BigInt(userId) },
       select: {
-        id: true,
+        user_id: true,
         name: true,
         email: true,
         role: true,
-        active: true,
-        createdAt: true,
-        updatedAt: true,
+        position: true,
+        is_active: true,
+        created_at: true,
+        updated_at: true,
       },
     });
 
     if (!user) {
-      throw AppError.notFound('Usuário não encontrado');
+      throw new AppError('Usuário não encontrado', 404);
     }
 
     return user;

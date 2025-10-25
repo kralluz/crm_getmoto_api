@@ -1,84 +1,109 @@
 import { z } from 'zod';
-import { timestampsSchema, uuidSchema } from './common.schema';
 
+// Baseado nas tabelas products e stock_move do Prisma
+// model Product {
+//   product_id       BigInt
+//   category_id      BigInt
+//   product_name     String
+//   quantity         Decimal @db.Decimal(12, 3)
+//   quantity_alert   Decimal @db.Decimal(12, 3)
+//   buy_price        Decimal @db.Decimal(12, 2)
+//   sell_price       Decimal @db.Decimal(12, 2)
+//   is_active        Boolean
+//   created_at       DateTime
+//   updated_at       DateTime
+// }
+
+// ck_stock_move_type IN ('ENTRY', 'EXIT', 'ADJUSTMENT')
 export const StockMovementTypeEnum = z.enum(['ENTRY', 'EXIT', 'ADJUSTMENT']);
 
 // Input schemas
 export const createProductSchema = z.object({
-  name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(200, 'Nome muito longo'),
-  description: z.string().max(1000, 'Descrição muito longa').optional().nullable(),
-  brand: z.string().max(100, 'Marca muito longa').optional().nullable(),
-  code: z.string().max(50, 'Código muito longo').optional().nullable(),
-  barcode: z.string().max(50, 'Código de barras muito longo').optional().nullable(),
-  category: z.string().max(100, 'Categoria muito longa').optional().nullable(),
-  costPrice: z.coerce.number().min(0, 'Preço de custo deve ser positivo'),
-  salePrice: z.coerce.number().min(0, 'Preço de venda deve ser positivo'),
-  stockQuantity: z.coerce.number().int().min(0, 'Quantidade em estoque deve ser positiva').default(0),
-  minStock: z.coerce.number().int().min(0, 'Estoque mínimo deve ser positivo').default(0),
-  maxStock: z.coerce.number().int().min(0, 'Estoque máximo deve ser positivo').optional().nullable(),
-  unit: z.string().max(10, 'Unidade muito longa').default('UN'),
-  active: z.boolean().default(true),
-}).refine((data) => data.salePrice >= data.costPrice, {
-  message: 'Preço de venda deve ser maior ou igual ao preço de custo',
-  path: ['salePrice'],
+  category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')),
+  product_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo'),
+  quantity: z.coerce.number().min(0, 'Quantidade deve ser positiva').default(0),
+  quantity_alert: z.coerce.number().min(0, 'Quantidade de alerta deve ser positiva').default(0),
+  buy_price: z.coerce.number().min(0, 'Preço de compra deve ser positivo'),
+  sell_price: z.coerce.number().min(0, 'Preço de venda deve ser positivo'),
+  is_active: z.boolean().default(true),
+}).refine((data) => data.sell_price >= data.buy_price, {
+  message: 'Preço de venda deve ser maior ou igual ao preço de compra',
+  path: ['sell_price'],
 });
 
 export const updateProductSchema = z.object({
-  name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(200, 'Nome muito longo').optional(),
-  description: z.string().max(1000, 'Descrição muito longa').optional().nullable(),
-  brand: z.string().max(100, 'Marca muito longa').optional().nullable(),
-  code: z.string().max(50, 'Código muito longo').optional().nullable(),
-  barcode: z.string().max(50, 'Código de barras muito longo').optional().nullable(),
-  category: z.string().max(100, 'Categoria muito longa').optional().nullable(),
-  costPrice: z.coerce.number().min(0, 'Preço de custo deve ser positivo').optional(),
-  salePrice: z.coerce.number().min(0, 'Preço de venda deve ser positivo').optional(),
-  stockQuantity: z.coerce.number().int().min(0, 'Quantidade em estoque deve ser positiva').optional(),
-  minStock: z.coerce.number().int().min(0, 'Estoque mínimo deve ser positivo').optional(),
-  maxStock: z.coerce.number().int().min(0, 'Estoque máximo deve ser positivo').optional().nullable(),
-  unit: z.string().max(10, 'Unidade muito longa').optional(),
-  active: z.boolean().optional(),
+  category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')).optional(),
+  product_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional(),
+  quantity: z.coerce.number().min(0, 'Quantidade deve ser positiva').optional(),
+  quantity_alert: z.coerce.number().min(0, 'Quantidade de alerta deve ser positiva').optional(),
+  buy_price: z.coerce.number().min(0, 'Preço de compra deve ser positivo').optional(),
+  sell_price: z.coerce.number().min(0, 'Preço de venda deve ser positivo').optional(),
+  is_active: z.boolean().optional(),
 }).refine((data) => Object.keys(data).length > 0, {
   message: 'Pelo menos um campo deve ser fornecido para atualização',
 });
 
 export const createStockMovementSchema = z.object({
-  productId: uuidSchema,
-  type: StockMovementTypeEnum,
-  quantity: z.coerce.number().int().min(1, 'Quantidade deve ser no mínimo 1'),
-  unitPrice: z.coerce.number().min(0, 'Preço unitário deve ser positivo').optional().nullable(),
-  totalPrice: z.coerce.number().min(0, 'Preço total deve ser positivo').optional().nullable(),
-  reason: z.string().max(500, 'Motivo muito longo').optional().nullable(),
-  reference: z.string().max(100, 'Referência muito longa').optional().nullable(),
-  date: z.coerce.date().optional(),
+  product_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do produto deve ser positivo')),
+  user_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do usuário deve ser positivo')).optional().nullable(),
+  move_type: StockMovementTypeEnum, // ck_stock_move_type IN ('ENTRY', 'EXIT', 'ADJUSTMENT')
+  quantity: z.coerce.number().min(0.001, 'Quantidade deve ser maior que zero'), // ck_stock_move_qty > 0
+  notes: z.string().max(500, 'Notas muito longas').optional().nullable(),
+});
+
+// Product Category schemas
+export const createProductCategorySchema = z.object({
+  product_category_name: z.string().min(3, 'Nome da categoria deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo'),
+  is_active: z.boolean().default(true),
+});
+
+export const updateProductCategorySchema = z.object({
+  product_category_name: z.string().min(3, 'Nome da categoria deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional(),
+  is_active: z.boolean().optional(),
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'Pelo menos um campo deve ser fornecido para atualização',
 });
 
 // Response schemas
 export const productResponseSchema = z.object({
-  id: uuidSchema,
-  name: z.string(),
-  description: z.string().nullable(),
-  brand: z.string().nullable(),
-  code: z.string().nullable(),
-  barcode: z.string().nullable(),
-  category: z.string().nullable(),
-  costPrice: z.number(),
-  salePrice: z.number(),
-  stockQuantity: z.number().int(),
-  minStock: z.number().int(),
-  maxStock: z.number().int().nullable(),
-  unit: z.string(),
-  active: z.boolean(),
-}).merge(timestampsSchema);
+  product_id: z.bigint().or(z.number()),
+  category_id: z.bigint().or(z.number()),
+  product_name: z.string(),
+  quantity: z.number(),
+  quantity_alert: z.number(),
+  buy_price: z.number(),
+  sell_price: z.number(),
+  is_active: z.boolean(),
+  created_at: z.date().or(z.string()),
+  updated_at: z.date().or(z.string()),
+});
+
+export const productCategoryResponseSchema = z.object({
+  product_category_id: z.bigint().or(z.number()),
+  product_category_name: z.string(),
+  is_active: z.boolean(),
+  created_at: z.date().or(z.string()),
+  updated_at: z.date().or(z.string()),
+});
 
 export const stockMovementResponseSchema = z.object({
-  id: uuidSchema,
-  productId: uuidSchema,
-  type: StockMovementTypeEnum,
-  quantity: z.number().int(),
-  unitPrice: z.number().nullable(),
-  totalPrice: z.number().nullable(),
-  reason: z.string().nullable(),
-  reference: z.string().nullable(),
-  date: z.date(),
-  createdAt: z.date(),
+  stock_move_id: z.bigint().or(z.number()),
+  product_id: z.bigint().or(z.number()),
+  user_id: z.bigint().or(z.number()).nullable(),
+  move_type: StockMovementTypeEnum,
+  quantity: z.number(),
+  notes: z.string().nullable(),
+  is_active: z.boolean(),
+  created_at: z.date().or(z.string()),
+  updated_at: z.date().or(z.string()),
 });
+
+// Types
+export type CreateProductInput = z.infer<typeof createProductSchema>;
+export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+export type CreateStockMovementInput = z.infer<typeof createStockMovementSchema>;
+export type CreateProductCategoryInput = z.infer<typeof createProductCategorySchema>;
+export type UpdateProductCategoryInput = z.infer<typeof updateProductCategorySchema>;
+export type ProductResponse = z.infer<typeof productResponseSchema>;
+export type ProductCategoryResponse = z.infer<typeof productCategoryResponseSchema>;
+export type StockMovementResponse = z.infer<typeof stockMovementResponseSchema>;

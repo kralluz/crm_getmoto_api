@@ -21,10 +21,6 @@ const doc = {
       description: 'Gerenciamento de usuários do sistema',
     },
     {
-      name: 'Customers',
-      description: 'Gerenciamento de clientes',
-    },
-    {
       name: 'Services',
       description: 'Gerenciamento de serviços/ordens de serviço',
     },
@@ -33,7 +29,7 @@ const doc = {
       description: 'Gerenciamento de produtos e estoque',
     },
     {
-      name: 'Cash Flow',
+      name: 'CashFlow',
       description: 'Gerenciamento de fluxo de caixa',
     },
   ],
@@ -101,7 +97,6 @@ const outputFile = './src/swagger-output.json';
 const endpointsFiles = [
   './src/routes/auth.routes.ts',
   './src/routes/user.routes.ts',
-  './src/routes/customer.routes.ts',
   './src/routes/service.routes.ts',
   './src/routes/product.routes.ts',
   './src/routes/cashflow.routes.ts',

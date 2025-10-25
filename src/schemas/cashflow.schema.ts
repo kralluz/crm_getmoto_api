@@ -1,23 +1,62 @@
 import { z } from 'zod';
 
-export const TransactionTypeEnum = z.enum(['INCOME', 'EXPENSE']);
+// Baseado na tabela cash_flow do Prisma
+// model CashFlow {
+//   cash_flow_id        BigInt
+//   service_order_id    BigInt?
+//   service_realized_id BigInt?
+//   service_product_id  BigInt?
+//   amount              Decimal @db.Decimal(12, 2)
+//   direction           String  (entrada/saída)
+//   occurred_at         DateTime
+//   note                String?
+//   is_active           Boolean
+//   created_at          DateTime
+//   updated_at          DateTime
+// }
+
+export const CashFlowDirectionEnum = z.enum(['entrada', 'saida']);
 
 export const createCashFlowSchema = z.object({
-  paymentId: z.string().uuid('Payment ID inválido').optional().nullable(),
-  userId: z.string().uuid('User ID inválido'),
-  type: TransactionTypeEnum,
-  category: z.string().min(3, 'Categoria deve ter no mínimo 3 caracteres'),
-  amount: z.number().min(0, 'Valor deve ser positivo'),
-  description: z.string().min(5, 'Descrição deve ter no mínimo 5 caracteres'),
-  date: z.string().datetime().optional(),
+  service_order_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da ordem deve ser positivo')).optional().nullable(),
+  service_realized_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço realizado deve ser positivo')).optional().nullable(),
+  service_product_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do produto de serviço deve ser positivo')).optional().nullable(),
+  amount: z.coerce.number().min(0.01, 'Valor deve ser maior que zero'), // ck_cash_flow_amount > 0
+  direction: CashFlowDirectionEnum, // ck_cash_flow_direction IN ('entrada', 'saida')
+  occurred_at: z.coerce.date().optional(),
+  note: z.string().max(500, 'Nota muito longa').optional().nullable(),
+  is_active: z.boolean().default(true),
 });
 
 export const updateCashFlowSchema = z.object({
-  paymentId: z.string().uuid('Payment ID inválido').optional().nullable(),
-  userId: z.string().uuid('User ID inválido').optional(),
-  type: TransactionTypeEnum.optional(),
-  category: z.string().min(3, 'Categoria deve ter no mínimo 3 caracteres').optional(),
-  amount: z.number().min(0, 'Valor deve ser positivo').optional(),
-  description: z.string().min(5, 'Descrição deve ter no mínimo 5 caracteres').optional(),
-  date: z.string().datetime().optional(),
+  service_order_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da ordem deve ser positivo')).optional().nullable(),
+  service_realized_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço realizado deve ser positivo')).optional().nullable(),
+  service_product_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do produto de serviço deve ser positivo')).optional().nullable(),
+  amount: z.coerce.number().min(0.01, 'Valor deve ser maior que zero').optional(), // ck_cash_flow_amount > 0
+  direction: CashFlowDirectionEnum.optional(), // ck_cash_flow_direction IN ('entrada', 'saida')
+  occurred_at: z.coerce.date().optional(),
+  note: z.string().max(500, 'Nota muito longa').optional().nullable(),
+  is_active: z.boolean().optional(),
+}).refine((data) => Object.keys(data).length > 0, {
+  message: 'Pelo menos um campo deve ser fornecido para atualização',
 });
+
+// Response schema
+export const cashFlowResponseSchema = z.object({
+  cash_flow_id: z.bigint().or(z.number()),
+  service_order_id: z.bigint().or(z.number()).nullable(),
+  service_realized_id: z.bigint().or(z.number()).nullable(),
+  service_product_id: z.bigint().or(z.number()).nullable(),
+  amount: z.number(),
+  direction: CashFlowDirectionEnum,
+  occurred_at: z.date().or(z.string()),
+  note: z.string().nullable(),
+  is_active: z.boolean(),
+  created_at: z.date().or(z.string()),
+  updated_at: z.date().or(z.string()),
+});
+
+// Types
+export type CreateCashFlowInput = z.infer<typeof createCashFlowSchema>;
+export type UpdateCashFlowInput = z.infer<typeof updateCashFlowSchema>;
+export type CashFlowResponse = z.infer<typeof cashFlowResponseSchema>;

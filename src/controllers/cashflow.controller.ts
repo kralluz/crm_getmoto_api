@@ -10,12 +10,11 @@ export class CashFlowController {
   }
 
   async getAll(req: Request, res: Response) {
-    const { type, startDate, endDate, category } = req.query;
+    const { direction, startDate, endDate } = req.query;
     const cashFlows = await cashFlowService.getAll(
-      type as string,
+      direction as string,
       startDate as string,
-      endDate as string,
-      category as string
+      endDate as string
     );
     return res.json(cashFlows);
   }

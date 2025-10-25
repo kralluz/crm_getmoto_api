@@ -10,17 +10,17 @@ export class UserController {
   }
 
   async getById(req: Request, res: Response) {
-    const user = await userService.getById(req.params.id);
+    const user = await userService.getById(Number(req.params.id));
     return res.json(user);
   }
 
   async update(req: Request, res: Response) {
-    const user = await userService.update(req.params.id, req.body);
+    const user = await userService.update(Number(req.params.id), req.body);
     return res.json(user);
   }
 
   async delete(req: Request, res: Response) {
-    await userService.delete(req.params.id);
+    await userService.delete(Number(req.params.id));
     return res.status(204).send();
   }
 }

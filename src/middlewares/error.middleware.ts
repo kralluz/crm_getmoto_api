@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
+import logger from '../config/logger';
 
 export class AppError extends Error {
   statusCode: number;
@@ -158,10 +159,10 @@ export const errorHandler = (
   }
 
   // Log de erro não tratado
-  console.error('❌ Erro não tratado:', {
+  logger.error('Unhandled error', {
     name: error.name,
     message: error.message,
-    stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    stack: error.stack,
   });
 
   // Erro genérico

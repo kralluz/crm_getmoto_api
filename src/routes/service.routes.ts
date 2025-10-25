@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ServiceController } from '../controllers/service.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { validateBody, validateParams } from '../middlewares/validate.middleware';
-import { createServiceSchema, updateServiceSchema } from '../schemas/service.schema';
+import { createServiceOrderSchema, updateServiceOrderSchema } from '../schemas/service.schema';
 import { idParamSchema } from '../schemas/common.schema';
 
 const router = Router();
@@ -73,7 +73,7 @@ router.use(authMiddleware);
  *         description: Não autenticado
  */
 router.post('/',
-  validateBody(createServiceSchema),
+  validateBody(createServiceOrderSchema),
   serviceController.create.bind(serviceController)
 );
 
@@ -190,7 +190,7 @@ router.get('/:id',
  */
 router.put('/:id',
   validateParams(idParamSchema),
-  validateBody(updateServiceSchema),
+  validateBody(updateServiceOrderSchema),
   serviceController.update.bind(serviceController)
 );
 

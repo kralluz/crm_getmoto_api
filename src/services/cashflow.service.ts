@@ -4,55 +4,140 @@ import { CreateCashFlowInput, UpdateCashFlowInput } from '../interfaces/cashflow
 
 export class CashFlowService {
   async create(data: CreateCashFlowInput) {
-    return await prisma.cashFlow.create({
+    return await prisma.cash_flow.create({
       data: {
         ...data,
-        date: data.date ? new Date(data.date) : undefined,
       },
       include: {
-        payment: true,
-        user: { select: { id: true, name: true, email: true } },
-      },
-    });
-  }
-
-  async getAll(type?: string, startDate?: string, endDate?: string, category?: string) {
-    const where: any = {};
-
-    if (type) where.type = type;
-    if (category) where.category = { contains: category, mode: 'insensitive' };
-
-    if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
-    }
-
-    return await prisma.cashFlow.findMany({
-      where,
-      include: {
-        payment: true,
-        user: { select: { id: true, name: true, email: true } },
-      },
-      orderBy: { date: 'desc' },
-    });
-  }
-
-  async getById(id: string) {
-    const cashFlow = await prisma.cashFlow.findUnique({
-      where: { id },
-      include: {
-        payment: {
-          include: {
-            service: {
-              include: {
-                customer: true,
-                motorcycle: true,
+        service_order: {
+          select: {
+            service_order_id: true,
+            customer_name: true,
+            service_description: true,
+          },
+        },
+        service_products: {
+          select: {
+            service_product_id: true,
+            product_qtd: true,
+            products: {
+              select: {
+                product_name: true,
               },
             },
           },
         },
-        user: { select: { id: true, name: true, email: true } },
+        services_realized: {
+          select: {
+            services_realized_id: true,
+            service_qtd: true,
+            service: {
+              select: {
+                service_category_name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getAll(direction?: string, startDate?: string, endDate?: string) {
+    const where: any = {
+      is_active: true,
+    };
+
+    // Filtro por direção (entrada/saida)
+    if (direction && (direction === 'entrada' || direction === 'saida')) {
+      where.direction = direction;
+    }
+
+    // Filtro por intervalo de datas
+    if (startDate || endDate) {
+      where.occurred_at = {};
+      if (startDate) {
+        where.occurred_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.occurred_at.lte = new Date(endDate);
+      }
+    }
+
+    return await prisma.cash_flow.findMany({
+      where,
+      include: {
+        service_order: {
+          select: {
+            service_order_id: true,
+            customer_name: true,
+            service_description: true,
+          },
+        },
+        service_products: {
+          select: {
+            service_product_id: true,
+            product_qtd: true,
+            products: {
+              select: {
+                product_name: true,
+              },
+            },
+          },
+        },
+        services_realized: {
+          select: {
+            services_realized_id: true,
+            service_qtd: true,
+            service: {
+              select: {
+                service_category_name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { occurred_at: 'desc' },
+    });
+  }
+
+  async getById(id: string) {
+    const cashFlow = await prisma.cash_flow.findUnique({
+      where: { cash_flow_id: BigInt(id) },
+      include: {
+        service_order: {
+          select: {
+            service_order_id: true,
+            customer_name: true,
+            service_description: true,
+            status: true,
+          },
+        },
+        service_products: {
+          select: {
+            service_product_id: true,
+            product_qtd: true,
+            products: {
+              select: {
+                product_id: true,
+                product_name: true,
+                sell_price: true,
+              },
+            },
+          },
+        },
+        services_realized: {
+          select: {
+            services_realized_id: true,
+            service_qtd: true,
+            service: {
+              select: {
+                service_category_id: true,
+                service_category_name: true,
+                service_cost: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -66,41 +151,57 @@ export class CashFlowService {
   async update(id: string, data: UpdateCashFlowInput) {
     await this.getById(id);
 
-    return await prisma.cashFlow.update({
-      where: { id },
+    return await prisma.cash_flow.update({
+      where: { cash_flow_id: BigInt(id) },
       data: {
         ...data,
-        date: data.date ? new Date(data.date) : undefined,
       },
       include: {
-        payment: true,
-        user: { select: { id: true, name: true, email: true } },
+        service_order: {
+          select: {
+            service_order_id: true,
+            customer_name: true,
+            service_description: true,
+          },
+        },
       },
     });
   }
 
   async delete(id: string) {
     await this.getById(id);
-    await prisma.cashFlow.delete({ where: { id } });
+
+    // Soft delete - marca como inativo
+    await prisma.cash_flow.update({
+      where: { cash_flow_id: BigInt(id) },
+      data: { is_active: false },
+    });
   }
 
   async getSummary(startDate?: string, endDate?: string) {
-    const where: any = {};
+    const where: any = {
+      is_active: true,
+    };
 
+    // Filtro por intervalo de datas
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      where.occurred_at = {};
+      if (startDate) {
+        where.occurred_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.occurred_at.lte = new Date(endDate);
+      }
     }
 
-    const incomes = await prisma.cashFlow.aggregate({
-      where: { ...where, type: 'INCOME' },
+    const incomes = await prisma.cash_flow.aggregate({
+      where: { ...where, direction: 'entrada' },
       _sum: { amount: true },
       _count: true,
     });
 
-    const expenses = await prisma.cashFlow.aggregate({
-      where: { ...where, type: 'EXPENSE' },
+    const expenses = await prisma.cash_flow.aggregate({
+      where: { ...where, direction: 'saida' },
       _sum: { amount: true },
       _count: true,
     });
@@ -113,30 +214,110 @@ export class CashFlowService {
       totalIncome,
       totalExpense,
       balance,
+      incomeCount: incomes._count,
+      expenseCount: expenses._count,
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
     };
   }
 
+  /**
+   * Retorna resumo financeiro agrupado por categoria de serviço
+   * Como não há campo 'category' na tabela cash_flow, agrupamos por:
+   * - Serviços realizados (via service_realized_id)
+   * - Produtos vendidos (via service_product_id)
+   */
   async getCategorySummary(startDate?: string, endDate?: string) {
-    const where: any = {};
+    const where: any = {
+      is_active: true,
+    };
 
+    // Filtro por intervalo de datas
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      where.occurred_at = {};
+      if (startDate) {
+        where.occurred_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.occurred_at.lte = new Date(endDate);
+      }
     }
 
-    const results = await prisma.cashFlow.groupBy({
-      by: ['category', 'type'],
-      where,
-      _sum: { amount: true },
-      _count: true,
+    // Resumo por serviços realizados
+    const serviceFlows = await prisma.cash_flow.findMany({
+      where: {
+        ...where,
+        service_realized_id: { not: null },
+      },
+      include: {
+        services_realized: {
+          include: {
+            service: true,
+          },
+        },
+      },
     });
 
-    return results.map((item) => ({
-      category: item.category,
-      type: item.type,
-      total: Number(item._sum.amount || 0),
-      count: item._count,
-    }));
+    // Resumo por produtos vendidos
+    const productFlows = await prisma.cash_flow.findMany({
+      where: {
+        ...where,
+        service_product_id: { not: null },
+      },
+      include: {
+        service_products: {
+          include: {
+            products: true,
+          },
+        },
+      },
+    });
+
+    // Agrupar serviços por categoria
+    const serviceSummary = serviceFlows.reduce((acc: any, flow) => {
+      if (!flow.services_realized?.service) return acc;
+
+      const categoryName = flow.services_realized.service.service_category_name;
+      if (!acc[categoryName]) {
+        acc[categoryName] = {
+          category: categoryName,
+          type: 'Serviço',
+          direction: flow.direction,
+          total: 0,
+          count: 0,
+        };
+      }
+      acc[categoryName].total += Number(flow.amount);
+      acc[categoryName].count += 1;
+      return acc;
+    }, {});
+
+    // Agrupar produtos
+    const productSummary = productFlows.reduce((acc: any, flow) => {
+      if (!flow.service_products?.products) return acc;
+
+      const productName = flow.service_products.products.product_name;
+      const categoryKey = `Produto: ${productName}`;
+      if (!acc[categoryKey]) {
+        acc[categoryKey] = {
+          category: productName,
+          type: 'Produto',
+          direction: flow.direction,
+          total: 0,
+          count: 0,
+        };
+      }
+      acc[categoryKey].total += Number(flow.amount);
+      acc[categoryKey].count += 1;
+      return acc;
+    }, {});
+
+    // Combinar e retornar resultados
+    const results = [
+      ...Object.values(serviceSummary),
+      ...Object.values(productSummary),
+    ];
+
+    return results;
   }
 }

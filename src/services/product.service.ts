@@ -1,44 +1,71 @@
 import prisma from '../config/prisma';
 import { AppError } from '../middlewares/error.middleware';
-import { CreateProductInput, UpdateProductInput, CreateStockMovementInput } from '../interfaces/product.interface';
+import { CreateProductInput, UpdateProductInput, CreateStockMoveInput } from '../interfaces/product.interface';
 
 export class ProductService {
   async create(data: CreateProductInput) {
-    if (data.code) {
-      const codeExists = await prisma.product.findUnique({ where: { code: data.code } });
-      if (codeExists) {
-        throw new AppError('Código já cadastrado', 400);
-      }
+    // Verificar se categoria existe
+    const category = await prisma.product_category.findUnique({
+      where: { product_category_id: BigInt(data.category_id) },
+    });
+
+    if (!category) {
+      throw new AppError('Categoria não encontrada', 404);
     }
 
-    if (data.barcode) {
-      const barcodeExists = await prisma.product.findUnique({ where: { barcode: data.barcode } });
-      if (barcodeExists) {
-        throw new AppError('Código de barras já cadastrado', 400);
-      }
-    }
-
-    return await prisma.product.create({ data });
-  }
-
-  async getAll(active?: boolean, lowStock?: boolean) {
-    const where: any = {};
-    if (active !== undefined) where.active = active;
-    if (lowStock) where.stockQuantity = { lte: prisma.product.fields.minStock };
-
-    return await prisma.product.findMany({
-      where,
-      orderBy: { name: 'asc' },
+    return await prisma.products.create({
+      data: {
+        category_id: BigInt(data.category_id),
+        product_name: data.product_name,
+        quantity: data.quantity || 0,
+        quantity_alert: data.quantity_alert || 0,
+        buy_price: data.buy_price || 0,
+        sell_price: data.sell_price || 0,
+        is_active: data.is_active ?? true,
+      },
+      include: {
+        product_category: true,
+      },
     });
   }
 
-  async getById(id: string) {
-    const product = await prisma.product.findUnique({
-      where: { id },
+  async getAll(is_active?: boolean, low_stock?: boolean) {
+    const where: any = {};
+
+    if (is_active !== undefined) {
+      where.is_active = is_active;
+    }
+
+    if (low_stock) {
+      where.quantity = { lte: prisma.products.fields.quantity_alert };
+    }
+
+    return await prisma.products.findMany({
+      where,
       include: {
-        stockMovements: {
-          orderBy: { date: 'desc' },
+        product_category: true,
+      },
+      orderBy: { product_name: 'asc' },
+    });
+  }
+
+  async getById(product_id: bigint | number) {
+    const product = await prisma.products.findUnique({
+      where: { product_id: BigInt(product_id) },
+      include: {
+        product_category: true,
+        stock_move: {
+          orderBy: { created_at: 'desc' },
           take: 20,
+          include: {
+            users: {
+              select: {
+                user_id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
         },
       },
     });
@@ -50,82 +77,134 @@ export class ProductService {
     return product;
   }
 
-  async update(id: string, data: UpdateProductInput) {
-    await this.getById(id);
+  async update(product_id: bigint | number, data: UpdateProductInput) {
+    await this.getById(product_id);
 
-    if (data.code) {
-      const codeExists = await prisma.product.findFirst({
-        where: { code: data.code, id: { not: id } },
+    // Se está alterando a categoria, verificar se ela existe
+    if (data.category_id !== undefined) {
+      const category = await prisma.product_category.findUnique({
+        where: { product_category_id: BigInt(data.category_id) },
       });
-      if (codeExists) {
-        throw new AppError('Código já está em uso', 400);
+
+      if (!category) {
+        throw new AppError('Categoria não encontrada', 404);
       }
     }
 
-    if (data.barcode) {
-      const barcodeExists = await prisma.product.findFirst({
-        where: { barcode: data.barcode, id: { not: id } },
-      });
-      if (barcodeExists) {
-        throw new AppError('Código de barras já está em uso', 400);
-      }
-    }
+    const updateData: any = {};
+    if (data.category_id !== undefined) updateData.category_id = BigInt(data.category_id);
+    if (data.product_name !== undefined) updateData.product_name = data.product_name;
+    if (data.quantity !== undefined) updateData.quantity = data.quantity;
+    if (data.quantity_alert !== undefined) updateData.quantity_alert = data.quantity_alert;
+    if (data.buy_price !== undefined) updateData.buy_price = data.buy_price;
+    if (data.sell_price !== undefined) updateData.sell_price = data.sell_price;
+    if (data.is_active !== undefined) updateData.is_active = data.is_active;
 
-    return await prisma.product.update({
-      where: { id },
-      data,
+    return await prisma.products.update({
+      where: { product_id: BigInt(product_id) },
+      data: updateData,
+      include: {
+        product_category: true,
+      },
     });
   }
 
-  async delete(id: string) {
-    await this.getById(id);
-    await prisma.product.delete({ where: { id } });
+  async delete(product_id: bigint | number) {
+    await this.getById(product_id);
+
+    // Soft delete - apenas marca como inativo
+    return await prisma.products.update({
+      where: { product_id: BigInt(product_id) },
+      data: { is_active: false },
+    });
   }
 
-  async addStockMovement(data: CreateStockMovementInput) {
-    const product = await this.getById(data.productId);
+  async addStockMove(data: CreateStockMoveInput) {
+    const product = await this.getById(data.product_id);
 
-    let newQuantity = product.stockQuantity;
+    let newQuantity = Number(product.quantity);
 
-    if (data.type === 'ENTRY') {
+    if (data.move_type === 'ENTRY') {
       newQuantity += data.quantity;
-    } else if (data.type === 'EXIT') {
+    } else if (data.move_type === 'EXIT') {
       if (newQuantity < data.quantity) {
         throw new AppError('Quantidade insuficiente em estoque', 400);
       }
       newQuantity -= data.quantity;
-    } else if (data.type === 'ADJUSTMENT') {
+    } else if (data.move_type === 'ADJUSTMENT') {
       newQuantity = data.quantity;
     }
 
-    const movement = await prisma.stockMovement.create({
+    const movement = await prisma.stock_move.create({
       data: {
-        ...data,
-        date: data.date ? new Date(data.date) : undefined,
+        product_id: BigInt(data.product_id),
+        user_id: data.user_id ? BigInt(data.user_id) : null,
+        move_type: data.move_type,
+        quantity: data.quantity,
+        notes: data.notes || null,
+        is_active: true,
+      },
+      include: {
+        products: true,
+        users: {
+          select: {
+            user_id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     });
 
-    await prisma.product.update({
-      where: { id: data.productId },
-      data: { stockQuantity: newQuantity },
+    await prisma.products.update({
+      where: { product_id: BigInt(data.product_id) },
+      data: { quantity: newQuantity },
     });
 
     return movement;
   }
 
-  async getStockMovements(productId?: string, startDate?: string, endDate?: string) {
+  async getStockMoves(product_id?: bigint | number, startDate?: string, endDate?: string) {
     const where: any = {};
-    if (productId) where.productId = productId;
-    if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+
+    if (product_id) {
+      where.product_id = BigInt(product_id);
     }
 
-    return await prisma.stockMovement.findMany({
+    if (startDate || endDate) {
+      where.created_at = {};
+      if (startDate) where.created_at.gte = new Date(startDate);
+      if (endDate) where.created_at.lte = new Date(endDate);
+    }
+
+    return await prisma.stock_move.findMany({
       where,
-      include: { product: true },
-      orderBy: { date: 'desc' },
+      include: {
+        products: true,
+        users: {
+          select: {
+            user_id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
+  async getLowStockProducts() {
+    return await prisma.products.findMany({
+      where: {
+        is_active: true,
+        quantity: {
+          lte: prisma.products.fields.quantity_alert,
+        },
+      },
+      include: {
+        product_category: true,
+      },
+      orderBy: { quantity: 'asc' },
     });
   }
 }

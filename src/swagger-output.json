@@ -17,10 +17,6 @@
       "description": "Gerenciamento de usuários do sistema"
     },
     {
-      "name": "Customers",
-      "description": "Gerenciamento de clientes"
-    },
-    {
       "name": "Services",
       "description": "Gerenciamento de serviços/ordens de serviço"
     },
@@ -29,7 +25,7 @@
       "description": "Gerenciamento de produtos e estoque"
     },
     {
-      "name": "Cash Flow",
+      "name": "CashFlow",
       "description": "Gerenciamento de fluxo de caixa"
     }
   ],
@@ -92,13 +88,6 @@
     "/": {
       "get": {
         "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -107,13 +96,6 @@
       },
       "post": {
         "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -129,11 +111,6 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
             "type": "string"
           }
         ],
@@ -151,11 +128,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
           }
         ],
         "responses": {
@@ -171,11 +143,6 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
             "type": "string"
           }
         ],
@@ -221,13 +188,6 @@
     "/summary": {
       "get": {
         "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""
@@ -238,13 +198,6 @@
     "/summary/categories": {
       "get": {
         "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
         "responses": {
           "default": {
             "description": ""

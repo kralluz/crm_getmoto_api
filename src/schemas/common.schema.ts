@@ -1,21 +1,27 @@
 import { z } from 'zod';
 
-// Schema comum para UUID em params
-export const uuidSchema = z.string().uuid('ID deve ser um UUID válido');
+// Schema comum para IDs (BigInt no banco, mas aceita number na API)
+export const idSchema = z.coerce.bigint().or(z.coerce.number().int().positive('ID deve ser um número positivo'));
 
 export const idParamSchema = z.object({
-  id: uuidSchema,
+  id: z.coerce.number().int().positive('ID deve ser um número positivo'),
 });
 
 // Schema de paginação
 export const paginationSchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
+  page: z.coerce.number().int().min(1, 'Página deve ser no mínimo 1').default(1),
+  limit: z.coerce.number().int().min(1, 'Limite deve ser no mínimo 1').max(100, 'Limite máximo é 100').default(10),
+});
+
+// Schema de query params para filtros
+export const filterActiveSchema = z.object({
+  is_active: z.coerce.boolean().optional(),
 });
 
 // Schema de resposta de sucesso genérico
 export const successResponseSchema = z.object({
   status: z.literal('success'),
+  message: z.string().optional(),
   data: z.any(),
 });
 
@@ -29,8 +35,19 @@ export const errorResponseSchema = z.object({
   })).optional(),
 });
 
-// Schema base de timestamps
+// Schema base de timestamps (padrão do Prisma)
 export const timestampsSchema = z.object({
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  created_at: z.date().or(z.string()),
+  updated_at: z.date().or(z.string()),
+});
+
+// Schema de resposta paginada
+export const paginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) => z.object({
+  data: z.array(itemSchema),
+  pagination: z.object({
+    page: z.number().int(),
+    limit: z.number().int(),
+    total: z.number().int(),
+    totalPages: z.number().int(),
+  }),
 });
