@@ -3,7 +3,7 @@ import { UserRole } from '@prisma/client';
 
 describe('JWT Util', () => {
   const mockPayload = {
-    userId: '123e4567-e89b-12d3-a456-426614174000',
+    userId: 1,
     email: 'test@example.com',
     role: UserRole.ADMIN,
   };
@@ -23,8 +23,8 @@ describe('JWT Util', () => {
     });
 
     it('deve gerar tokens diferentes com payloads diferentes', () => {
-      const payload1 = { ...mockPayload, userId: 'user1' };
-      const payload2 = { ...mockPayload, userId: 'user2' };
+      const payload1 = { ...mockPayload, userId: 1 };
+      const payload2 = { ...mockPayload, userId: 2 };
       
       const token1 = generateToken(payload1);
       const token2 = generateToken(payload2);

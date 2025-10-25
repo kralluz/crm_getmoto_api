@@ -86,7 +86,7 @@ describe('Auth Middleware', () => {
 
   describe('requireRole', () => {
     const mockUser = {
-      userId: '123e4567-e89b-12d3-a456-426614174000',
+      userId: 1,
       email: 'test@example.com',
       role: UserRole.MECHANIC,
     };
