@@ -25,14 +25,5 @@ else
   exit 1
 fi
 
-echo "🔧 Aplicando migrations manuais (se necessário)..."
-node apply_migration.js
-
-if [ $? -eq 0 ]; then
-  echo "✅ Migrations manuais verificadas/aplicadas com sucesso"
-else
-  echo "⚠️ Aviso: Erro ao aplicar migrations manuais (pode já estar aplicadas)"
-fi
-
 echo "🎯 Iniciando servidor CRM GetMoto..."
 exec node dist/server.js

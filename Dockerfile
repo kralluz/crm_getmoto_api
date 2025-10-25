@@ -45,9 +45,6 @@ RUN npx prisma generate
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 
-# Copy migration scripts
-COPY apply_migration.js ./apply_migration.js
-
 # Copy docker entrypoint script
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
