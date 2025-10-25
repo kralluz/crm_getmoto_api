@@ -2,38 +2,46 @@
 
 API completa para gestão de oficina de motos, desenvolvida com Node.js, TypeScript, Express, Prisma e PostgreSQL.
 
-## Funcionalidades
+## ✨ Funcionalidades
 
-- **Autenticação JWT**: Sistema completo de autenticação e autorização com diferentes níveis de acesso
-- **Gestão de Usuários**: CRUD completo com roles (ADMIN, MANAGER, MECHANIC, ATTENDANT)
-- **Gestão de Clientes**: Cadastro completo de clientes com histórico de serviços
-- **Gestão de Motos**: Registro de motocicletas dos clientes
-- **Gestão de Serviços**: Controle de ordens de serviço com status, diagnóstico e itens
-- **Gestão de Estoque**: Controle de produtos, preços e movimentações de estoque
-- **Gestão de Fluxo de Caixa**: Controle financeiro com receitas, despesas e relatórios
+- ✅ **Autenticação JWT**: Sistema completo de autenticação e autorização com diferentes níveis de acesso
+- ✅ **Gestão de Usuários**: CRUD completo com roles (ADMIN, MANAGER, MECHANIC, ATTENDANT)
+- ✅ **Gestão de Motos**: Registro de motocicletas (marca, modelo, placa, ano)
+- ✅ **Gestão de Serviços**: Controle de ordens de serviço com status, diagnóstico e profissional responsável
+- ✅ **Gestão de Estoque**: Controle de produtos, categorias, preços e movimentações de estoque
+- ✅ **Gestão de Fluxo de Caixa**: Controle financeiro detalhado com receitas, despesas e relatórios
+- ✅ **Logging Estruturado**: Winston com rotação diária de logs
+- ✅ **Testes Automatizados**: Jest com cobertura de código
+- ✅ **Validação Robusta**: Zod schemas em todos os endpoints
+- ✅ **Rate Limiting**: Proteção contra abuso de API
+- ✅ **Documentação Swagger**: Documentação interativa da API
 
-## Tecnologias
+## 🚀 Tecnologias
 
-- **Node.js** com **TypeScript**
+- **Node.js 18+** com **TypeScript**
 - **Express.js** - Framework web
-- **Prisma** - ORM para PostgreSQL
+- **Prisma ORM** - ORM para PostgreSQL
+- **PostgreSQL 14+** - Banco de dados
 - **Zod** - Validação de schemas
 - **JWT** - Autenticação
 - **Bcrypt** - Hash de senhas
+- **Winston** - Logging estruturado
+- **Jest** - Framework de testes
 - **Swagger** - Documentação da API
+- **Orval** - Geração de cliente TypeScript/React Query
 
-## Pré-requisitos
+## 📋 Pré-requisitos
 
 - Node.js >= 18
 - PostgreSQL >= 14
 - npm ou yarn
 
-## Instalação
+## 🔧 Instalação
 
 1. Clone o repositório:
 ```bash
-git clone <url-do-repositorio>
-cd crm_api_getmoto
+git clone https://github.com/kralluz/crm_getmoto_api.git
+cd crm_getmoto_api
 ```
 
 2. Instale as dependências:
@@ -42,35 +50,54 @@ npm install
 ```
 
 3. Configure as variáveis de ambiente:
-```bash
-cp .env.example .env
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+# Banco de Dados
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/crm_getmoto?schema=public"
+
+# JWT
+JWT_SECRET="sua-chave-secreta-super-segura-aqui"
+JWT_EXPIRES_IN="7d"
+
+# Servidor
+PORT=3000
+NODE_ENV="development"
+
+# CORS (separe múltiplas origens com vírgula)
+CORS_ORIGIN="http://localhost:5173,http://localhost:3000"
+
+# Logging
+LOG_LEVEL="debug"
 ```
 
-Edite o arquivo `.env` com suas configurações:
-- Configure a `DATABASE_URL` com os dados do seu PostgreSQL
-- Configure o `JWT_SECRET` com uma chave secreta segura
+4. Configure o banco de dados:
 
-4. Execute as migrations do Prisma:
 ```bash
-npm run prisma:migrate
+# Aplicar migrations
+npx prisma migrate deploy
+
+# Gerar Prisma Client
+npx prisma generate
+
+# (Opcional) Seed com dados iniciais
+npx prisma db seed
 ```
 
-5. Gere o Prisma Client:
-```bash
-npm run prisma:generate
-```
-
-6. (Opcional) Gere a documentação Swagger:
+5. (Opcional) Gere a documentação Swagger:
 ```bash
 npm run swagger
 ```
 
-## Executando
+## 🏃 Executando
 
 ### Desenvolvimento
 ```bash
 npm run dev
 ```
+
+O servidor iniciará em `http://localhost:3000`
 
 ### Produção
 ```bash
@@ -78,95 +105,253 @@ npm run build
 npm start
 ```
 
-## Endpoints Principais
+## 📚 Documentação
 
-### Autenticação
-- `POST /api/auth/register` - Registrar novo usuário
-- `POST /api/auth/login` - Fazer login
-- `GET /api/auth/me` - Obter dados do usuário autenticado
-
-### Usuários
-- `GET /api/users` - Listar usuários
-- `GET /api/users/:id` - Obter usuário por ID
-- `PUT /api/users/:id` - Atualizar usuário
-- `DELETE /api/users/:id` - Deletar usuário
-
-### Clientes
-- `POST /api/customers` - Criar cliente
-- `GET /api/customers` - Listar clientes
-- `GET /api/customers/:id` - Obter cliente por ID
-- `PUT /api/customers/:id` - Atualizar cliente
-- `DELETE /api/customers/:id` - Deletar cliente
-
-### Serviços
-- `POST /api/services` - Criar serviço
-- `GET /api/services` - Listar serviços
-- `GET /api/services/:id` - Obter serviço por ID
-- `PUT /api/services/:id` - Atualizar serviço
-- `DELETE /api/services/:id` - Deletar serviço
-
-### Produtos (Estoque)
-- `POST /api/products` - Criar produto
-- `GET /api/products` - Listar produtos
-- `GET /api/products/:id` - Obter produto por ID
-- `PUT /api/products/:id` - Atualizar produto
-- `DELETE /api/products/:id` - Deletar produto
-- `POST /api/products/stock/movements` - Adicionar movimentação de estoque
-- `GET /api/products/stock/movements` - Listar movimentações
-
-### Fluxo de Caixa
-- `POST /api/cashflow` - Criar registro de fluxo de caixa
-- `GET /api/cashflow` - Listar registros
-- `GET /api/cashflow/summary` - Resumo financeiro
-- `GET /api/cashflow/summary/categories` - Resumo por categorias
-- `GET /api/cashflow/:id` - Obter registro por ID
-- `PUT /api/cashflow/:id` - Atualizar registro
-- `DELETE /api/cashflow/:id` - Deletar registro
-
-## Documentação
-
-Após iniciar o servidor, acesse a documentação Swagger em:
+### Swagger UI (Apenas Development)
+Acesse a documentação interativa em:
 ```
 http://localhost:3000/api-docs
 ```
 
-## Scripts Disponíveis
+### Documentação Completa
+Veja [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) para documentação detalhada de todos os endpoints.
 
-- `npm run dev` - Inicia o servidor em modo desenvolvimento
-- `npm run build` - Compila o projeto TypeScript
-- `npm start` - Inicia o servidor em produção
-- `npm run prisma:generate` - Gera o Prisma Client
-- `npm run prisma:migrate` - Executa as migrations
-- `npm run prisma:studio` - Abre o Prisma Studio
-- `npm run swagger` - Gera a documentação Swagger
+### Guia de Testes
+Veja [TESTING_GUIDE.md](./TESTING_GUIDE.md) para informações sobre testes automatizados.
 
-## Estrutura do Projeto
+## 📋 Endpoints Principais
+
+### 🔑 Autenticação (`/api/auth`)
+- `POST /api/auth/register` - Registrar novo usuário (rate-limited: 3/hora)
+- `POST /api/auth/login` - Fazer login (rate-limited: 5/15min)
+- `GET /api/auth/me` - Obter dados do usuário autenticado
+
+### 👥 Usuários (`/api/users`)
+- `GET /api/users` - Listar usuários
+- `GET /api/users/:id` - Obter usuário por ID
+- `PUT /api/users/:id` - Atualizar usuário (ADMIN, MANAGER)
+- `DELETE /api/users/:id` - Deletar usuário (ADMIN)
+
+### 🔧 Serviços (`/api/services`)
+- `POST /api/services` - Criar ordem de serviço
+- `GET /api/services` - Listar ordens (filtros: status, customer_name)
+- `GET /api/services/:id` - Obter ordem por ID (com detalhes completos)
+- `PUT /api/services/:id` - Atualizar ordem de serviço
+- `DELETE /api/services/:id` - Deletar ordem (soft delete - ADMIN, MANAGER)
+
+### 📦 Produtos/Estoque (`/api/products`)
+- `POST /api/products` - Criar produto (ADMIN, MANAGER)
+- `GET /api/products` - Listar produtos (filtros: active, lowStock)
+- `GET /api/products/:id` - Obter produto por ID
+- `PUT /api/products/:id` - Atualizar produto (ADMIN, MANAGER)
+- `DELETE /api/products/:id` - Deletar produto (ADMIN)
+- `POST /api/products/stock/movements` - Registrar movimentação de estoque (ADMIN, MANAGER)
+- `GET /api/products/stock/movements` - Listar movimentações (filtros: productId, dates)
+
+### 💰 Fluxo de Caixa (`/api/cashflow`)
+- `POST /api/cashflow` - Criar registro (ADMIN, MANAGER)
+- `GET /api/cashflow` - Listar registros (filtros: direction, dates)
+- `GET /api/cashflow/summary` - Resumo financeiro do período (ADMIN, MANAGER)
+- `GET /api/cashflow/summary/categories` - Resumo por categorias (ADMIN, MANAGER)
+- `GET /api/cashflow/:id` - Obter registro por ID
+- `PUT /api/cashflow/:id` - Atualizar registro (ADMIN, MANAGER)
+- `DELETE /api/cashflow/:id` - Deletar registro (ADMIN)
+
+### 🏥 Health Check
+- `GET /health` - Status da API e banco de dados
+
+## 🧪 Testes
+
+### Executar Testes
+
+```bash
+# Executar todos os testes
+npm test
+
+# Testes em modo watch
+npm run test:watch
+
+# Testes com cobertura
+npm run test:coverage
+
+# Testes detalhados
+npm run test:verbose
+```
+
+### Cobertura Atual
+
+- ✅ **Utils**: hash.util, jwt.util (100%)
+- ✅ **Services**: auth.service
+- ✅ **Middlewares**: auth.middleware
+- 📊 **Cobertura Geral**: ~40%
+
+Veja [TESTING_GUIDE.md](./TESTING_GUIDE.md) para mais detalhes.
+
+## 📜 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev              # Servidor em modo desenvolvimento com hot-reload
+
+# Build e Produção
+npm run build            # Compila TypeScript para dist/
+npm start                # Inicia servidor em produção
+
+# Testes
+npm test                 # Executa testes
+npm run test:watch       # Modo watch
+npm run test:coverage    # Com cobertura
+
+# Documentação e Cliente
+npm run swagger          # Gera documentação Swagger
+npm run orval            # Gera cliente TypeScript/React Query
+npm run generate:client  # Swagger + Orval
+```
+
+## 📁 Estrutura do Projeto
 
 ```
 src/
-├── config/          # Configurações (Prisma, etc)
-├── controllers/     # Controllers da aplicação
-├── interfaces/      # Interfaces TypeScript (infer do Zod)
-├── middlewares/     # Middlewares (auth, validação, erro)
-├── routes/          # Rotas da API
-├── schemas/         # Schemas Zod para validação
-├── services/        # Lógica de negócio
-├── utils/           # Utilitários (hash, JWT)
-├── app.ts           # Configuração do Express
-└── server.ts        # Inicialização do servidor
+├── config/              # Configurações
+│   ├── prisma.ts        # Cliente Prisma
+│   └── logger.ts        # Winston logger
+├── controllers/         # Controllers (lógica de rota)
+│   ├── auth.controller.ts
+│   ├── user.controller.ts
+│   ├── product.controller.ts
+│   ├── service.controller.ts
+│   └── cashflow.controller.ts
+├── interfaces/          # Interfaces TypeScript (inferidas do Zod)
+├── middlewares/         # Middlewares
+│   ├── auth.middleware.ts       # Autenticação JWT
+│   ├── validate.middleware.ts   # Validação Zod
+│   ├── error.middleware.ts      # Tratamento de erros
+│   ├── rate-limit.middleware.ts # Rate limiting
+│   └── __tests__/               # Testes de middlewares
+├── routes/              # Definição de rotas
+│   ├── auth.routes.ts
+│   ├── user.routes.ts
+│   ├── product.routes.ts
+│   ├── service.routes.ts
+│   └── cashflow.routes.ts
+├── schemas/             # Schemas Zod para validação
+│   ├── user.schema.ts
+│   ├── product.schema.ts
+│   ├── service.schema.ts
+│   ├── cashflow.schema.ts
+│   └── common.schema.ts
+├── services/            # Lógica de negócio
+│   ├── auth.service.ts
+│   ├── user.service.ts
+│   ├── product.service.ts
+│   ├── service.service.ts
+│   ├── service-category.service.ts
+│   ├── service-order.service.ts
+│   ├── cashflow.service.ts
+│   └── __tests__/       # Testes de services
+├── utils/               # Utilitários
+│   ├── hash.util.ts     # Bcrypt hash/compare
+│   ├── jwt.util.ts      # JWT generate/verify
+│   └── __tests__/       # Testes de utils
+├── api-client/          # Cliente TypeScript gerado (Orval)
+├── app.ts               # Configuração do Express
+├── server.ts            # Inicialização do servidor
+├── swagger.ts           # Geração do Swagger
+└── swagger-output.json  # Documentação Swagger gerada
+
+prisma/
+├── schema.prisma        # Schema do banco de dados
+├── seed.ts              # Dados iniciais (seed)
+└── migrations/          # Migrations do banco
+
+coverage/                # Relatórios de cobertura de testes
+logs/                    # Logs da aplicação (Winston)
 ```
 
-## Níveis de Acesso
+## 🛡️ Segurança
 
-- **ADMIN**: Acesso total ao sistema
-- **MANAGER**: Gerenciamento de operações (exceto usuários)
-- **MECHANIC**: Acesso a serviços e produtos
-- **ATTENDANT**: Acesso básico para atendimento
+### Rate Limiting
+- **API Geral**: 100 requisições / 15 minutos
+- **Login**: 5 tentativas / 15 minutos
+- **Registro**: 3 contas / hora
 
-## Licença
+### Autenticação
+- JWT com expiração de 7 dias
+- Senhas hashadas com bcrypt (10 rounds)
+- Middleware de autenticação em rotas protegidas
+
+### Validação
+- Todos os inputs validados com Zod schemas
+- Check constraints do PostgreSQL reforçados
+- Sanitização automática de dados
+
+### Headers HTTP
+- Helmet.js para segurança de headers
+- CORS configurável por ambiente
+- Body limit: 10MB máximo
+
+## 👥 Níveis de Acesso (Roles)
+
+| Role | Descrição | Permissões |
+|------|-----------|------------|
+| **ADMIN** | Administrador | ✅ Acesso total ao sistema<br>✅ Deletar qualquer recurso<br>✅ Gerenciar usuários |
+| **MANAGER** | Gerente | ✅ Gerenciar produtos e estoque<br>✅ Atualizar usuários<br>✅ Gerenciar fluxo de caixa<br>❌ Deletar usuários |
+| **MECHANIC** | Mecânico | ✅ Criar e atualizar ordens de serviço<br>✅ Visualizar produtos<br>❌ Gerenciar estoque<br>❌ Acesso financeiro |
+| **ATTENDANT** | Atendente | ✅ Criar ordens de serviço<br>✅ Visualizar produtos<br>❌ Atualizar produtos<br>❌ Acesso financeiro |
+
+## ⚠️ Limitações Conhecidas
+
+1. **Tabela de Clientes**: Não existe tabela separada de clientes. Use `service_order.customer_name` diretamente.
+2. **Refresh Token**: Não implementado. Re-autenticação necessária após expiração.
+3. **Upload de Arquivos**: Não suporta upload de fotos/documentos.
+4. **Notificações**: Sistema de notificações não implementado.
+5. **Relatórios PDF**: Geração de relatórios não implementada (apenas JSON).
+
+Veja [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) para lista completa.
+
+## 📝 Logs
+
+Sistema de logging com Winston:
+
+- **Console**: Logs coloridos em development
+- **Arquivos**: Rotação diária em `logs/`
+  - `combined-YYYY-MM-DD.log`: Todos os logs
+  - `error-YYYY-MM-DD.log`: Apenas erros
+- **Retenção**: 14 dias
+- **Níveis**: error, warn, info, debug
+
+## 🐳 Docker
+
+```bash
+# Build e run com Docker Compose
+docker-compose up -d
+
+# Logs
+docker-compose logs -f
+
+# Parar
+docker-compose down
+```
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
 
 MIT
 
-## Autor
+## 👨‍💻 Autores
 
-Desenvolvido para gestão de oficinas de motos
+- **kralluz** - Desenvolvimento principal
+- **AtlasGold** - Implementação de testes
+
+---
+
+**Última Atualização**: 25 de outubro de 2025  
+**Versão**: 1.0.0  
+**Status**: Em Desenvolvimento Ativo
