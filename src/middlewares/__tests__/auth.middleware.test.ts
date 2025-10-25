@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { authMiddleware, requireRole } from '../auth.middleware';
 import jwt from 'jsonwebtoken';
-import { UserRole } from '@prisma/client';
 
 jest.mock('jsonwebtoken');
 
@@ -27,7 +26,7 @@ describe('Auth Middleware', () => {
       const mockPayload = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
         email: 'test@example.com',
-        role: UserRole.ADMIN,
+        role: 'ADMIN',
       };
 
       mockRequest.headers = {
@@ -89,7 +88,7 @@ describe('Auth Middleware', () => {
     const mockUser = {
       userId: 1,
       email: 'test@example.com',
-      role: UserRole.MECHANIC,
+      role: 'MECHANIC',
     };
 
     beforeEach(() => {
@@ -97,7 +96,7 @@ describe('Auth Middleware', () => {
     });
 
     it('deve autorizar usuário com role permitida', () => {
-      const middleware = requireRole(UserRole.ADMIN, UserRole.MECHANIC);
+      const middleware = requireRole('ADMIN', 'MECHANIC');
 
       middleware(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -106,7 +105,7 @@ describe('Auth Middleware', () => {
     });
 
     it('deve chamar next com erro se usuário não tiver role permitida', () => {
-      const middleware = requireRole(UserRole.ADMIN);
+      const middleware = requireRole('ADMIN');
 
       middleware(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -118,7 +117,7 @@ describe('Auth Middleware', () => {
 
     it('deve chamar next com erro se usuário não estiver autenticado', () => {
       mockRequest.user = undefined;
-      const middleware = requireRole(UserRole.ADMIN);
+      const middleware = requireRole('ADMIN');
 
       middleware(mockRequest as Request, mockResponse as Response, nextFunction);
 
@@ -129,8 +128,8 @@ describe('Auth Middleware', () => {
     });
 
     it('deve autorizar quando role corresponde', () => {
-      mockRequest.user = { ...mockUser, role: UserRole.ADMIN };
-      const middleware = requireRole(UserRole.ADMIN);
+      mockRequest.user = { ...mockUser, role: 'ADMIN' };
+      const middleware = requireRole('ADMIN');
 
       middleware(mockRequest as Request, mockResponse as Response, nextFunction);
 

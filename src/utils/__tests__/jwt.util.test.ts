@@ -1,11 +1,10 @@
 import { generateToken, verifyToken } from '../jwt.util';
-import { UserRole } from '@prisma/client';
 
 describe('JWT Util', () => {
   const mockPayload = {
     userId: 1,
     email: 'test@example.com',
-    role: UserRole.ADMIN,
+    role: 'ADMIN',
   };
 
   beforeAll(() => {

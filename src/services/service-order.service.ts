@@ -338,11 +338,11 @@ export class ServiceOrderService {
     const order = await this.getById(service_order_id);
 
     // Calcular totais
-    const productsTotal = order.service_products.reduce((sum, sp) => {
+    const productsTotal = order.service_products.reduce((sum: number, sp: any) => {
       return sum + Number(sp.products.sell_price) * Number(sp.product_qtd);
     }, 0);
 
-    const servicesTotal = order.services_realized.reduce((sum, sr) => {
+    const servicesTotal = order.services_realized.reduce((sum: number, sr: any) => {
       return sum + Number(sr.service.service_cost) * Number(sr.service_qtd);
     }, 0);
 

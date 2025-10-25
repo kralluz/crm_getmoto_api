@@ -274,7 +274,7 @@ export class CashFlowService {
     });
 
     // Agrupar serviços por categoria
-    const serviceSummary = serviceFlows.reduce((acc: any, flow) => {
+    const serviceSummary = serviceFlows.reduce((acc: any, flow: any) => {
       if (!flow.services_realized?.service) return acc;
 
       const categoryName = flow.services_realized.service.service_category_name;
@@ -293,7 +293,7 @@ export class CashFlowService {
     }, {});
 
     // Agrupar produtos
-    const productSummary = productFlows.reduce((acc: any, flow) => {
+    const productSummary = productFlows.reduce((acc: any, flow: any) => {
       if (!flow.service_products?.products) return acc;
 
       const productName = flow.service_products.products.product_name;

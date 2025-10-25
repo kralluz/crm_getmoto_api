@@ -2,7 +2,6 @@ import { AuthService } from '../auth.service';
 import prisma from '../../config/prisma';
 import * as hashUtil from '../../utils/hash.util';
 import * as jwtUtil from '../../utils/jwt.util';
-import { UserRole } from '@prisma/client';
 
 // Mock dos módulos
 jest.mock('../../config/prisma', () => ({
@@ -26,7 +25,7 @@ describe('AuthService', () => {
     name: 'Test User',
     email: 'test@example.com',
     password_hash: '$2a$10$hashedpassword',
-    role: UserRole.ADMIN,
+    role: 'ADMIN',
     is_active: true,
     created_at: new Date(),
     updated_at: new Date(),
@@ -45,7 +44,7 @@ describe('AuthService', () => {
       name: 'New User',
       email: 'newuser@example.com',
       password: 'senha123',
-      role: UserRole.ATTENDANT,
+      role: 'ATTENDANT' as const,
       is_active: true,
     };
 

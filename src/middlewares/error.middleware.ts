@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
 import logger from '../config/logger';
 
 export class AppError extends Error {
@@ -53,7 +52,7 @@ const handleZodError = (error: ZodError) => {
 };
 
 const handlePrismaError = (error: any) => {
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  if (error.code && typeof error.code === 'string' && error.code.startsWith('P')) {
     switch (error.code) {
       case 'P2002':
         // Unique constraint violation
@@ -88,7 +87,7 @@ const handlePrismaError = (error: any) => {
     }
   }
 
-  if (error instanceof Prisma.PrismaClientValidationError) {
+  if (error.name === 'PrismaClientValidationError') {
     return {
       statusCode: 400,
       message: 'Erro de validação dos dados',
