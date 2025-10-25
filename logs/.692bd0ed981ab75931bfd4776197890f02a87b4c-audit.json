@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/lvmss/crm_getmoto_api/logs/.692bd0ed981ab75931bfd4776197890f02a87b4c-audit.json",
+    "files": [
+        {
+            "date": 1761423998588,
+            "name": "/home/lvmss/crm_getmoto_api/logs/error-2025-10-25.log",
+            "hash": "e60d698cfddb0f39b36d7e638a66043dce0d5362f09ac1cc7dabdfff713255e0"
+        }
+    ],
+    "hashType": "sha256"
+}

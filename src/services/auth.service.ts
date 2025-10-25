@@ -7,7 +7,7 @@ import { LoginInput, CreateUserInput, AuthResponse } from '../interfaces/user.in
 export class AuthService {
   async register(data: CreateUserInput): Promise<AuthResponse> {
     // Verificar se email já existe
-    const existingUser = await prisma.users.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
@@ -19,7 +19,7 @@ export class AuthService {
     const hashedPassword = await hashPassword(data.password);
 
     // Criar usuário
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
@@ -50,7 +50,7 @@ export class AuthService {
 
   async login(data: LoginInput): Promise<AuthResponse> {
     // Buscar usuário por email
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
@@ -90,7 +90,7 @@ export class AuthService {
   }
 
   async me(userId: bigint | number) {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { user_id: BigInt(userId) },
       select: {
         user_id: true,
