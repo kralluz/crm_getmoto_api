@@ -17,29 +17,28 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    // TEMPORARIAMENTE DESABILITADO PARA TESTES - Pular autenticação
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-      // Para testes, permitir sem token com usuário dummy
-      req.user = {
-        userId: 1,
-        email: 'test@example.com',
-        role: 'ADMIN'
-      };
-      next();
-      return;
+    if (!authHeader) {
+      throw AppError.unauthorized('Token não fornecido');
     }
+
+    const parts = authHeader.split(' ');
+
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      throw AppError.unauthorized('Formato de token inválido');
+    }
+
+    const token = parts[1];
 
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'secret'
+      process.env.JWT_SECRET || 'your-secret-key-here'
     ) as JwtPayload;
 
     req.user = decoded;
     next();
   } catch (error) {
-    // O error handler global vai tratar erros JWT
     next(error);
   }
 };

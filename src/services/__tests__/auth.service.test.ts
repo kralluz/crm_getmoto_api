@@ -63,8 +63,12 @@ describe('AuthService', () => {
       expect(hashUtil.hashPassword).toHaveBeenCalledWith(registerData.password);
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: {
-          ...registerData,
-          password: '$2a$10$hashedpassword',
+          name: registerData.name,
+          email: registerData.email,
+          password_hash: '$2a$10$hashedpassword',
+          role: registerData.role,
+          position: null,
+          is_active: registerData.is_active,
         },
       });
       expect(jwtUtil.generateToken).toHaveBeenCalledWith({
@@ -173,7 +177,7 @@ describe('AuthService', () => {
       const result = await authService.me(userId);
 
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { user_id: userId },
+        where: { user_id: BigInt(userId) },
         select: {
           user_id: true,
           name: true,
