@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/usuario/Documentos/GitHub/crm_getmoto_api/logs/.20e3a35c156fa0f37fe68d15e862196a23834e50-audit.json",
+    "files": [
+        {
+            "date": 1761526424057,
+            "name": "/home/usuario/Documentos/GitHub/crm_getmoto_api/logs/combined-2025-10-26.log",
+            "hash": "83b69b45c6952f876caa639be8a3c7fd145a8e32bd84060026f44967f22f0748"
+        }
+    ],
+    "hashType": "sha256"
+}

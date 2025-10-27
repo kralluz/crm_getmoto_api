@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import 'express-async-errors';
 import { errorHandler } from './middlewares/error.middleware';
 import { apiLimiter } from './middlewares/rate-limit.middleware';
+import { bigIntSerializer } from './middlewares/bigint-serializer.middleware';
 import swaggerUi from 'swagger-ui-express';
 import logger, { stream } from './config/logger';
 
@@ -39,6 +40,9 @@ app.use('/api/', apiLimiter);
 // Body parsing middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// BigInt serializer (must be before routes)
+app.use(bigIntSerializer);
 
 // Health check
 import prisma from './config/prisma';
