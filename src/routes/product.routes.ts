@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { ProductController } from '../controllers/product.controller';
-import { authMiddleware, requireRole } from '../middlewares/auth.middleware';
 import { validateBody, validateParams } from '../middlewares/validate.middleware';
 import { createProductSchema, updateProductSchema, createStockMovementSchema } from '../schemas/product.schema';
 import { idParamSchema } from '../schemas/common.schema';
@@ -8,18 +7,13 @@ import { idParamSchema } from '../schemas/common.schema';
 const router = Router();
 const productController = new ProductController();
 
-// Todas as rotas requerem autenticação
-router.use(authMiddleware);
-
 /**
  * @swagger
  * /api/products:
  *   post:
  *     summary: Criar novo produto
- *     description: Cadastra um novo produto no estoque (apenas ADMIN e MANAGER)
+ *     description: Cadastra um novo produto no estoque
  *     tags: [Products]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -92,7 +86,6 @@ router.use(authMiddleware);
  */
 router.post(
   '/',
-  requireRole('ADMIN', 'MANAGER'),
   validateBody(createProductSchema),
   productController.create.bind(productController)
 );
@@ -102,10 +95,8 @@ router.post(
  * /api/products:
  *   get:
  *     summary: Listar produtos
- *     description: Retorna lista de produtos com filtros opcionais
+ *     description: Obtém lista de produtos com filtros opcionais
  *     tags: [Products]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: active
@@ -160,10 +151,8 @@ router.get('/:id',
  * /api/products/{id}:
  *   put:
  *     summary: Atualizar produto
- *     description: Atualiza dados de um produto existente (apenas ADMIN e MANAGER)
+ *     description: Atualiza dados de um produto existente
  *     tags: [Products]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -221,7 +210,6 @@ router.get('/:id',
  */
 router.put(
   '/:id',
-  requireRole('ADMIN', 'MANAGER'),
   validateParams(idParamSchema),
   validateBody(updateProductSchema),
   productController.update.bind(productController)
@@ -232,10 +220,8 @@ router.put(
  * /api/products/{id}:
  *   delete:
  *     summary: Deletar produto
- *     description: Remove um produto do sistema (apenas ADMIN)
+ *     description: Remove um produto do sistema (soft delete)
  *     tags: [Products]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -256,7 +242,6 @@ router.put(
  */
 router.delete(
   '/:id',
-  requireRole('ADMIN'),
   validateParams(idParamSchema),
   productController.delete.bind(productController)
 );
@@ -319,7 +304,6 @@ router.delete(
  */
 router.post(
   '/stock/movements',
-  requireRole('ADMIN', 'MANAGER'),
   validateBody(createStockMovementSchema),
   productController.addStockMovement.bind(productController)
 );

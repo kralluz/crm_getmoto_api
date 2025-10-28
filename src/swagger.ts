@@ -25,8 +25,20 @@ const doc = {
       description: 'Gerenciamento de serviços/ordens de serviço',
     },
     {
+      name: 'Service Categories',
+      description: 'Gerenciamento de categorias de serviços',
+    },
+    {
       name: 'Products',
       description: 'Gerenciamento de produtos e estoque',
+    },
+    {
+      name: 'Product Categories',
+      description: 'Gerenciamento de categorias de produtos',
+    },
+    {
+      name: 'Vehicles',
+      description: 'Gerenciamento de veículos/motocicletas',
     },
     {
       name: 'CashFlow',
@@ -51,26 +63,14 @@ const doc = {
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-01T00:00:00.000Z',
     },
-    Customer: {
-      id: 'uuid',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      phone: '11999999999',
-      cpf: '12345678900',
-      address: 'Rua Exemplo, 123',
-      city: 'São Paulo',
-      state: 'SP',
-      zipCode: '01234567',
-    },
     Service: {
       id: 'uuid',
-      customerId: 'uuid',
-      motorcycleId: 'uuid',
-      userId: 'uuid',
+      customer_name: 'Maria Santos',
+      motorcycle_id: 123,
+      professional_name: 'João Silva',
       description: 'Troca de óleo e filtro',
       status: 'IN_PROGRESS',
-      laborCost: 100.00,
-      totalCost: 250.00,
+      estimated_labor_cost: 100.00,
     },
     Product: {
       id: 'uuid',
@@ -81,6 +81,34 @@ const doc = {
       salePrice: 80.00,
       stockQuantity: 25,
       minStock: 5,
+    },
+    ProductCategory: {
+      id: 1,
+      name: 'Óleos e Lubrificantes',
+      description: 'Produtos para lubrificação',
+      is_active: true,
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z',
+    },
+    ServiceCategory: {
+      id: 1,
+      name: 'Manutenção Preventiva',
+      description: 'Serviços de manutenção preventiva',
+      is_active: true,
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z',
+    },
+    Vehicle: {
+      id: 1,
+      customer_id: 123,
+      brand: 'Honda',
+      model: 'CG 160',
+      year: 2023,
+      license_plate: 'ABC-1234',
+      color: 'Vermelho',
+      is_active: true,
+      created_at: '2024-01-01T00:00:00.000Z',
+      updated_at: '2024-01-01T00:00:00.000Z',
     },
     CashFlow: {
       id: 'uuid',
@@ -100,6 +128,9 @@ const endpointsFiles = [
   './src/routes/service.routes.ts',
   './src/routes/product.routes.ts',
   './src/routes/cashflow.routes.ts',
+  './src/routes/service-category.routes.ts',
+  './src/routes/product-category.routes.ts',
+  './src/routes/vehicle.routes.ts',
 ];
 
 swaggerAutogen()(outputFile, endpointsFiles, doc).then(() => {

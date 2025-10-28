@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { ServiceController } from '../controllers/service.controller';
-import { authMiddleware } from '../middlewares/auth.middleware';
 import { validateBody, validateParams } from '../middlewares/validate.middleware';
 import { createServiceOrderSchema, updateServiceOrderSchema } from '../schemas/service.schema';
 import { idParamSchema } from '../schemas/common.schema';
@@ -8,8 +7,8 @@ import { idParamSchema } from '../schemas/common.schema';
 const router = Router();
 const serviceController = new ServiceController();
 
-// Todas as rotas requerem autenticação
-router.use(authMiddleware);
+// Autenticação desabilitada temporariamente
+// router.use(authMiddleware);
 
 /**
  * @swagger

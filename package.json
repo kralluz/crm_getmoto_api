@@ -12,8 +12,10 @@
     "test:coverage": "jest --coverage",
     "test:verbose": "jest --verbose",
     "swagger": "ts-node src/swagger.ts",
+    "swagger:jsdoc": "ts-node src/swagger-jsdoc.ts",
     "orval": "orval --config ./orval.config.ts",
-    "generate:client": "npm run swagger && npm run orval"
+    "generate:client": "npm run swagger:jsdoc && npm run orval",
+    "deploy": "docker build --no-cache -t ghcr.io/kralluz/crm_api_getmoto:latest . && docker push ghcr.io/kralluz/crm_api_getmoto:latest"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -49,12 +51,14 @@
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.7.2",
+    "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "jest": "^30.2.0",
     "msw": "^2.11.5",
     "orval": "^7.13.2",
     "prisma": "^6.18.0",
     "swagger-autogen": "^2.23.7",
+    "swagger-jsdoc": "^6.2.8",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
