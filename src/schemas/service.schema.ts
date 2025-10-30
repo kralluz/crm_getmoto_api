@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Baseado nas tabelas service, service_order, services_realized e service_products do Prisma
-// Tabela service é para categorias de serviço
+// Tabela service é para serviços (ex: Troca de Pneu, Revisão)
 // Tabela service_order é para ordens de serviço
 // Tabela services_realized é para serviços realizados em uma ordem
 // Tabela service_products é para produtos usados em uma ordem
@@ -9,15 +9,15 @@ import { z } from 'zod';
 // ck_service_order_status IN ('draft', 'in_progress', 'completed', 'cancelled')
 export const ServiceStatusEnum = z.enum(['draft', 'in_progress', 'completed', 'cancelled']);
 
-// Service Category (tabela service)
+// Service (tabela service)
 export const createServiceCategorySchema = z.object({
-  service_category_name: z.string().min(3, 'Nome da categoria deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo'),
+  service_name: z.string().min(3, 'Nome do serviço deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo'),
   service_cost: z.coerce.number().min(0, 'Custo do serviço deve ser positivo'),
   is_active: z.boolean().default(true),
 });
 
 export const updateServiceCategorySchema = z.object({
-  service_category_name: z.string().min(3, 'Nome da categoria deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional(),
+  service_name: z.string().min(3, 'Nome do serviço deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional(),
   service_cost: z.coerce.number().min(0, 'Custo do serviço deve ser positivo').optional(),
   is_active: z.boolean().optional(),
 }).refine((data) => Object.keys(data).length > 0, {
@@ -26,9 +26,9 @@ export const updateServiceCategorySchema = z.object({
 
 // Service Order (tabela service_order)
 export const createServiceOrderSchema = z.object({
-  service_category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')).optional().nullable(),
+  service_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço deve ser positivo')).optional().nullable(),
   professional_name: z.string().min(3, 'Nome do profissional deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional().nullable(),
-  motorcycle_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da moto deve ser positivo')).optional().nullable(),
+  vehicle_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do veículo deve ser positivo')).optional().nullable(),
   customer_name: z.string().min(3, 'Nome do cliente deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional().nullable(),
   service_description: z.string().min(5, 'Descrição deve ter no mínimo 5 caracteres').optional().nullable(),
   diagnosis: z.string().optional().nullable(),
@@ -38,9 +38,9 @@ export const createServiceOrderSchema = z.object({
 });
 
 export const updateServiceOrderSchema = z.object({
-  service_category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')).optional().nullable(),
+  service_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço deve ser positivo')).optional().nullable(),
   professional_name: z.string().min(3, 'Nome do profissional deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional().nullable(),
-  motorcycle_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da moto deve ser positivo')).optional().nullable(),
+  vehicle_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do veículo deve ser positivo')).optional().nullable(),
   customer_name: z.string().min(3, 'Nome do cliente deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional().nullable(),
   service_description: z.string().min(5, 'Descrição deve ter no mínimo 5 caracteres').optional().nullable(),
   diagnosis: z.string().optional().nullable(),
@@ -62,14 +62,14 @@ export const createServiceProductSchema = z.object({
 // Services Realized (tabela services_realized)
 export const createServiceRealizedSchema = z.object({
   service_order_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da ordem de serviço deve ser positivo')),
-  service_category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')),
+  service_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço deve ser positivo')),
   service_qtd: z.coerce.number().min(0.001, 'Quantidade deve ser maior que zero'), // ck_services_realized_qty > 0
 });
 
 // Response schemas
 export const serviceCategoryResponseSchema = z.object({
-  service_category_id: z.bigint().or(z.number()),
-  service_category_name: z.string(),
+  service_id: z.bigint().or(z.number()),
+  service_name: z.string(),
   service_cost: z.number(),
   is_active: z.boolean(),
   created_at: z.date().or(z.string()),
@@ -78,9 +78,9 @@ export const serviceCategoryResponseSchema = z.object({
 
 export const serviceOrderResponseSchema = z.object({
   service_order_id: z.bigint().or(z.number()),
-  service_category_id: z.bigint().or(z.number()).nullable(),
+  service_id: z.bigint().or(z.number()).nullable(),
   professional_name: z.string().nullable(),
-  motorcycle_id: z.bigint().or(z.number()).nullable(),
+  vehicle_id: z.bigint().or(z.number()).nullable(),
   customer_name: z.string().nullable(),
   service_description: z.string().nullable(),
   diagnosis: z.string().nullable(),
@@ -106,7 +106,7 @@ export const serviceProductResponseSchema = z.object({
 export const serviceRealizedResponseSchema = z.object({
   services_realized_id: z.bigint().or(z.number()),
   service_order_id: z.bigint().or(z.number()),
-  service_category_id: z.bigint().or(z.number()),
+  service_id: z.bigint().or(z.number()),
   service_qtd: z.number(),
   is_active: z.boolean(),
   created_at: z.date().or(z.string()),

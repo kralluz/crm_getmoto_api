@@ -21,7 +21,7 @@ export const createCashFlowSchema = z.object({
   service_order_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da ordem deve ser positivo')).optional().nullable(),
   service_realized_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do serviço realizado deve ser positivo')).optional().nullable(),
   service_product_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID do produto de serviço deve ser positivo')).optional().nullable(),
-  amount: z.coerce.number().min(0.01, 'Valor deve ser maior que zero'), // ck_cash_flow_amount > 0
+  amount: z.coerce.number().min(0.01, 'Valor deve ser maior que zero'), // Recebe em reais na API
   direction: CashFlowDirectionEnum, // ck_cash_flow_direction IN ('entrada', 'saida')
   occurred_at: z.coerce.date().optional(),
   note: z.string().max(500, 'Nota muito longa').optional().nullable(),

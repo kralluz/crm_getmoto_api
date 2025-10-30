@@ -5,7 +5,7 @@ import { UpdateUserInput } from '../interfaces/user.interface';
 
 export class UserService {
   async getAll() {
-    return await prisma.users.findMany({
+    return await prisma.user.findMany({
       select: {
         user_id: true,
         name: true,
@@ -20,7 +20,7 @@ export class UserService {
   }
 
   async getById(user_id: bigint | number) {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { user_id: BigInt(user_id) },
       select: {
         user_id: true,
@@ -45,7 +45,7 @@ export class UserService {
     const user = await this.getById(user_id);
 
     if (data.email && data.email !== user.email) {
-      const emailExists = await prisma.users.findUnique({
+      const emailExists = await prisma.user.findUnique({
         where: { email: data.email },
       });
       if (emailExists) {
@@ -64,7 +64,7 @@ export class UserService {
       updateData.password_hash = await hashPassword(data.password);
     }
 
-    return await prisma.users.update({
+    return await prisma.user.update({
       where: { user_id: BigInt(user_id) },
       data: updateData,
       select: {
@@ -84,7 +84,7 @@ export class UserService {
     await this.getById(user_id);
 
     // Soft delete - marca como inativo
-    return await prisma.users.update({
+    return await prisma.user.update({
       where: { user_id: BigInt(user_id) },
       data: { is_active: false },
     });

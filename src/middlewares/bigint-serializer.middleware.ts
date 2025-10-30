@@ -23,8 +23,17 @@ function convertBigIntToNumber(obj: any): any {
   }
 
   // Converter Prisma Decimal para Number
-  if (obj && typeof obj === 'object' && obj.constructor && obj.constructor.name === 'Decimal') {
-    return Number(obj.toString());
+  // Verifica se é um objeto Decimal do Prisma (decimal.js)
+  if (obj && typeof obj === 'object') {
+    // Verifica se tem as propriedades características do Decimal (s, e, d)
+    if (typeof obj.s === 'number' && typeof obj.e === 'number' && Array.isArray(obj.d)) {
+      return Number(obj.toString());
+    }
+    
+    // Também verifica pelo construtor como fallback
+    if (obj.constructor && (obj.constructor.name === 'Decimal' || obj.constructor.name === 'Big')) {
+      return Number(obj.toString());
+    }
   }
 
   // Converter Date para ISO string
@@ -52,7 +61,7 @@ function convertBigIntToNumber(obj: any): any {
 /**
  * Middleware que intercepta as respostas e converte BigInt para Number
  */
-export function bigIntSerializer(req: Request, res: Response, next: NextFunction) {
+export function bigIntSerializer(_req: Request, res: Response, next: NextFunction) {
   const originalJson = res.json;
 
   res.json = function (data: any) {

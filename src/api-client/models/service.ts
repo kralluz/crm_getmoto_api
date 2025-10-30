@@ -8,11 +8,10 @@
 
 export interface Service {
   id?: string;
-  customerId?: string;
-  motorcycleId?: string;
-  userId?: string;
+  customer_name?: string;
+  vehicle_id?: number;
+  professional_name?: string;
   description?: string;
   status?: string;
-  laborCost?: number;
-  totalCost?: number;
+  estimated_labor_cost?: number;
 }

@@ -66,7 +66,7 @@ const doc = {
     Service: {
       id: 'uuid',
       customer_name: 'Maria Santos',
-      motorcycle_id: 123,
+      vehicle_id: 123,
       professional_name: 'João Silva',
       description: 'Troca de óleo e filtro',
       status: 'IN_PROGRESS',

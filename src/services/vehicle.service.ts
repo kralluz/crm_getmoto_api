@@ -144,7 +144,7 @@ export class VehicleService {
     // Verificar se existem ordens de serviço ativas vinculadas
     const activeOrders = await prisma.service_order.count({
       where: {
-        motorcycle_id: BigInt(vehicle_id),
+        vehicle_id: BigInt(vehicle_id),
         is_active: true,
       },
     });

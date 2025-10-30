@@ -1,8 +1,26 @@
 import prisma from '../config/prisma';
 import { AppError } from '../middlewares/error.middleware';
 import { CreateProductInput, UpdateProductInput, CreateStockMoveInput } from '../interfaces/product.interface';
+import { MoneyUtils } from '../utils/money.util';
 
 export class ProductService {
+  /**
+   * Transforma produto do banco para resposta da API (usando reais)
+   */
+  private transformProductResponse(product: any) {
+    if (!product) return product;
+    
+    // Remove campos internos de centavos da resposta
+    const { buy_price_cents, sell_price_cents, ...productData } = product;
+    
+    // Garante que os preços estão em reais (usando os campos Decimal como fonte da verdade)
+    return {
+      ...productData,
+      buy_price: product.buy_price ? Number(product.buy_price) : 0,
+      sell_price: product.sell_price ? Number(product.sell_price) : 0,
+    };
+  }
+
   async create(data: CreateProductInput) {
     // Verificar se categoria existe
     const category = await prisma.product_category.findUnique({
@@ -13,7 +31,7 @@ export class ProductService {
       throw new AppError('Categoria não encontrada', 404);
     }
 
-    return await prisma.products.create({
+    const product = await prisma.products.create({
       data: {
         category_id: BigInt(data.category_id),
         product_name: data.product_name,
@@ -21,12 +39,16 @@ export class ProductService {
         quantity_alert: data.quantity_alert || 0,
         buy_price: data.buy_price || 0,
         sell_price: data.sell_price || 0,
+        buy_price_cents: MoneyUtils.reaisToCents(data.buy_price || 0),
+        sell_price_cents: MoneyUtils.reaisToCents(data.sell_price || 0),
         is_active: data.is_active ?? true,
       },
       include: {
         product_category: true,
       },
     });
+
+    return this.transformProductResponse(product);
   }
 
   async getAll(is_active?: boolean, low_stock?: boolean) {
@@ -40,13 +62,15 @@ export class ProductService {
       where.quantity = { lte: prisma.products.fields.quantity_alert };
     }
 
-    return await prisma.products.findMany({
+    const products = await prisma.products.findMany({
       where,
       include: {
         product_category: true,
       },
       orderBy: { product_name: 'asc' },
     });
+
+    return products.map(product => this.transformProductResponse(product));
   }
 
   async getById(product_id: bigint | number) {
@@ -74,7 +98,7 @@ export class ProductService {
       throw new AppError('Produto não encontrado', 404);
     }
 
-    return product;
+    return this.transformProductResponse(product);
   }
 
   async update(product_id: bigint | number, data: UpdateProductInput) {
@@ -96,17 +120,25 @@ export class ProductService {
     if (data.product_name !== undefined) updateData.product_name = data.product_name;
     if (data.quantity !== undefined) updateData.quantity = data.quantity;
     if (data.quantity_alert !== undefined) updateData.quantity_alert = data.quantity_alert;
-    if (data.buy_price !== undefined) updateData.buy_price = data.buy_price;
-    if (data.sell_price !== undefined) updateData.sell_price = data.sell_price;
+    if (data.buy_price !== undefined) {
+      updateData.buy_price = data.buy_price;
+      updateData.buy_price_cents = MoneyUtils.reaisToCents(data.buy_price);
+    }
+    if (data.sell_price !== undefined) {
+      updateData.sell_price = data.sell_price;
+      updateData.sell_price_cents = MoneyUtils.reaisToCents(data.sell_price);
+    }
     if (data.is_active !== undefined) updateData.is_active = data.is_active;
 
-    return await prisma.products.update({
+    const updatedProduct = await prisma.products.update({
       where: { product_id: BigInt(product_id) },
       data: updateData,
       include: {
         product_category: true,
       },
     });
+
+    return this.transformProductResponse(updatedProduct);
   }
 
   async delete(product_id: bigint | number) {
@@ -194,7 +226,7 @@ export class ProductService {
   }
 
   async getLowStockProducts() {
-    return await prisma.products.findMany({
+    const products = await prisma.products.findMany({
       where: {
         is_active: true,
         quantity: {
@@ -206,5 +238,7 @@ export class ProductService {
       },
       orderBy: { quantity: 'asc' },
     });
+
+    return products.map(product => this.transformProductResponse(product));
   }
 }

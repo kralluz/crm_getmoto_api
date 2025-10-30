@@ -9,21 +9,21 @@ import {
 
 export class ServiceOrderService {
   async create(data: CreateServiceOrderInput) {
-    // Verificar se categoria de serviço existe (se fornecida)
-    if (data.service_category_id) {
-      const category = await prisma.service.findUnique({
-        where: { service_category_id: BigInt(data.service_category_id) },
+    // Verificar se serviço existe (se fornecido)
+    if (data.service_id) {
+      const service = await prisma.service.findUnique({
+        where: { service_id: BigInt(data.service_id) },
       });
 
-      if (!category) {
-        throw new AppError('Categoria de serviço não encontrada', 404);
+      if (!service) {
+        throw new AppError('Serviço não encontrado', 404);
       }
     }
 
     // Verificar se veículo existe (se fornecido)
-    if (data.motorcycle_id) {
+    if (data.vehicle_id) {
       const vehicle = await prisma.vehicles.findUnique({
-        where: { vehicle_id: BigInt(data.motorcycle_id) },
+        where: { vehicle_id: BigInt(data.vehicle_id) },
       });
 
       if (!vehicle) {
@@ -33,9 +33,9 @@ export class ServiceOrderService {
 
     return await prisma.service_order.create({
       data: {
-        service_category_id: data.service_category_id ? BigInt(data.service_category_id) : null,
+        service_id: data.service_id ? BigInt(data.service_id) : null,
         professional_name: data.professional_name || null,
-        motorcycle_id: data.motorcycle_id ? BigInt(data.motorcycle_id) : null,
+        vehicle_id: data.vehicle_id ? BigInt(data.vehicle_id) : null,
         customer_name: data.customer_name || null,
         service_description: data.service_description || null,
         diagnosis: data.diagnosis || null,
@@ -51,15 +51,15 @@ export class ServiceOrderService {
     });
   }
 
-  async getAll(status?: string, motorcycle_id?: bigint | number, is_active?: boolean) {
+  async getAll(status?: string, vehicle_id?: bigint | number, is_active?: boolean) {
     const where: any = {};
 
     if (status) {
       where.status = status;
     }
 
-    if (motorcycle_id) {
-      where.motorcycle_id = BigInt(motorcycle_id);
+    if (vehicle_id) {
+      where.vehicle_id = BigInt(vehicle_id);
     }
 
     if (is_active !== undefined) {
@@ -116,9 +116,9 @@ export class ServiceOrderService {
     await this.getById(service_order_id);
 
     // Verificar se categoria de serviço existe (se fornecida)
-    if (data.service_category_id) {
+    if (data.service_id) {
       const category = await prisma.service.findUnique({
-        where: { service_category_id: BigInt(data.service_category_id) },
+        where: { service_id: BigInt(data.service_id) },
       });
 
       if (!category) {
@@ -127,9 +127,9 @@ export class ServiceOrderService {
     }
 
     // Verificar se veículo existe (se fornecido)
-    if (data.motorcycle_id) {
+    if (data.vehicle_id) {
       const vehicle = await prisma.vehicles.findUnique({
-        where: { vehicle_id: BigInt(data.motorcycle_id) },
+        where: { vehicle_id: BigInt(data.vehicle_id) },
       });
 
       if (!vehicle) {
@@ -138,10 +138,10 @@ export class ServiceOrderService {
     }
 
     const updateData: any = {};
-    if (data.service_category_id !== undefined)
-      updateData.service_category_id = data.service_category_id ? BigInt(data.service_category_id) : null;
+    if (data.service_id !== undefined)
+      updateData.service_id = data.service_id ? BigInt(data.service_id) : null;
     if (data.professional_name !== undefined) updateData.professional_name = data.professional_name;
-    if (data.motorcycle_id !== undefined) updateData.motorcycle_id = data.motorcycle_id ? BigInt(data.motorcycle_id) : null;
+    if (data.vehicle_id !== undefined) updateData.vehicle_id = data.vehicle_id ? BigInt(data.vehicle_id) : null;
     if (data.customer_name !== undefined) updateData.customer_name = data.customer_name;
     if (data.service_description !== undefined) updateData.service_description = data.service_description;
     if (data.diagnosis !== undefined) updateData.diagnosis = data.diagnosis;
@@ -175,7 +175,7 @@ export class ServiceOrderService {
 
     // Verificar se a categoria de serviço existe
     const serviceCategory = await prisma.service.findUnique({
-      where: { service_category_id: BigInt(data.service_category_id) },
+      where: { service_id: BigInt(data.service_id) },
     });
 
     if (!serviceCategory) {
@@ -186,7 +186,7 @@ export class ServiceOrderService {
     const existingService = await prisma.services_realized.findFirst({
       where: {
         service_order_id: BigInt(data.service_order_id),
-        service_category_id: BigInt(data.service_category_id),
+        service_id: BigInt(data.service_id),
         is_active: true,
       },
     });
@@ -207,7 +207,7 @@ export class ServiceOrderService {
     // Criar novo serviço realizado
     const serviceRealized = await prisma.services_realized.create({
       data: {
-        service_category_id: BigInt(data.service_category_id),
+        service_id: BigInt(data.service_id),
         service_order_id: BigInt(data.service_order_id),
         service_qtd: data.service_qtd,
         is_active: true,
@@ -226,7 +226,7 @@ export class ServiceOrderService {
         amount: totalAmount,
         direction: 'entrada',
         occurred_at: new Date(),
-        note: `Serviço: ${serviceCategory.service_category_name} (${data.service_qtd}x)`,
+        note: `Serviço: ${serviceCategory.service_name} (${data.service_qtd}x)`,
         is_active: true,
       },
     });

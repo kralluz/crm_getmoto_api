@@ -1,12 +1,30 @@
 import prisma from '../config/prisma';
 import { AppError } from '../middlewares/error.middleware';
 import { CreateCashFlowInput, UpdateCashFlowInput } from '../interfaces/cashflow.interface';
+import { MoneyUtils } from '../utils/money.util';
 
 export class CashFlowService {
+  /**
+   * Transforma cash flow do banco para resposta da API (usando reais)
+   */
+  private transformCashFlowResponse(cashFlow: any) {
+    if (!cashFlow) return cashFlow;
+    
+    // Remove campo interno de centavos da resposta
+    const { amount_cents, ...cashFlowData } = cashFlow;
+    
+    // Garante que o amount está em reais (usando o campo Decimal como fonte da verdade)
+    return {
+      ...cashFlowData,
+      amount: cashFlow.amount ? Number(cashFlow.amount) : 0,
+    };
+  }
+
   async create(data: CreateCashFlowInput) {
-    return await prisma.cash_flow.create({
+    const cashFlow = await prisma.cash_flow.create({
       data: {
         ...data,
+        amount_cents: MoneyUtils.reaisToCents(data.amount),
       },
       include: {
         service_order: {
@@ -33,13 +51,15 @@ export class CashFlowService {
             service_qtd: true,
             service: {
               select: {
-                service_category_name: true,
+                service_name: true,
               },
             },
           },
         },
       },
     });
+
+    return this.transformCashFlowResponse(cashFlow);
   }
 
   async getAll(direction?: string, startDate?: string, endDate?: string) {
@@ -63,7 +83,7 @@ export class CashFlowService {
       }
     }
 
-    return await prisma.cash_flow.findMany({
+    const cashFlows = await prisma.cash_flow.findMany({
       where,
       include: {
         service_order: {
@@ -90,7 +110,7 @@ export class CashFlowService {
             service_qtd: true,
             service: {
               select: {
-                service_category_name: true,
+                service_name: true,
               },
             },
           },
@@ -98,6 +118,8 @@ export class CashFlowService {
       },
       orderBy: { occurred_at: 'desc' },
     });
+
+    return cashFlows.map(cashFlow => this.transformCashFlowResponse(cashFlow));
   }
 
   async getById(id: string) {
@@ -131,8 +153,8 @@ export class CashFlowService {
             service_qtd: true,
             service: {
               select: {
-                service_category_id: true,
-                service_category_name: true,
+                service_id: true,
+                service_name: true,
                 service_cost: true,
               },
             },
@@ -145,17 +167,20 @@ export class CashFlowService {
       throw new AppError('Registro de fluxo de caixa não encontrado', 404);
     }
 
-    return cashFlow;
+    return this.transformCashFlowResponse(cashFlow);
   }
 
   async update(id: string, data: UpdateCashFlowInput) {
     await this.getById(id);
 
-    return await prisma.cash_flow.update({
+    const updateData: any = { ...data };
+    if (data.amount !== undefined) {
+      updateData.amount_cents = MoneyUtils.reaisToCents(data.amount);
+    }
+
+    const updatedCashFlow = await prisma.cash_flow.update({
       where: { cash_flow_id: BigInt(id) },
-      data: {
-        ...data,
-      },
+      data: updateData,
       include: {
         service_order: {
           select: {
@@ -166,6 +191,8 @@ export class CashFlowService {
         },
       },
     });
+
+    return this.transformCashFlowResponse(updatedCashFlow);
   }
 
   async delete(id: string) {
@@ -277,7 +304,7 @@ export class CashFlowService {
     const serviceSummary = serviceFlows.reduce((acc: any, flow: any) => {
       if (!flow.services_realized?.service) return acc;
 
-      const categoryName = flow.services_realized.service.service_category_name;
+      const categoryName = flow.services_realized.service.service_name;
       if (!acc[categoryName]) {
         acc[categoryName] = {
           category: categoryName,

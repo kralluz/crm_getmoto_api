@@ -5,17 +5,17 @@ import { CreateServiceCategoryInput, UpdateServiceCategoryInput } from '../inter
 export class ServiceCategoryService {
   async create(data: CreateServiceCategoryInput) {
     // Verificar se nome já existe
-    const existingCategory = await prisma.service.findUnique({
-      where: { service_category_name: data.service_category_name },
+    const existingService = await prisma.service.findUnique({
+      where: { service_name: data.service_name },
     });
 
-    if (existingCategory) {
-      throw new AppError('Categoria de serviço já cadastrada com este nome', 409);
+    if (existingService) {
+      throw new AppError('Serviço já cadastrado com este nome', 409);
     }
 
     return await prisma.service.create({
       data: {
-        service_category_name: data.service_category_name,
+        service_name: data.service_name,
         service_cost: data.service_cost,
         is_active: data.is_active ?? true,
       },
@@ -31,13 +31,13 @@ export class ServiceCategoryService {
 
     return await prisma.service.findMany({
       where,
-      orderBy: { service_category_name: 'asc' },
+      orderBy: { service_name: 'asc' },
     });
   }
 
-  async getById(service_category_id: bigint | number) {
-    const category = await prisma.service.findUnique({
-      where: { service_category_id: BigInt(service_category_id) },
+  async getById(service_id: bigint | number) {
+    const service = await prisma.service.findUnique({
+      where: { service_id: BigInt(service_id) },
       include: {
         service_order: {
           where: { is_active: true },
@@ -52,93 +52,93 @@ export class ServiceCategoryService {
       },
     });
 
-    if (!category) {
-      throw new AppError('Categoria de serviço não encontrada', 404);
+    if (!service) {
+      throw new AppError('Serviço não encontrado', 404);
     }
 
-    return category;
+    return service;
   }
 
-  async update(service_category_id: bigint | number, data: UpdateServiceCategoryInput) {
-    await this.getById(service_category_id);
+  async update(service_id: bigint | number, data: UpdateServiceCategoryInput) {
+    await this.getById(service_id);
 
     // Se está alterando o nome, verificar se já existe outro com o mesmo nome
-    if (data.service_category_name) {
-      const existingCategory = await prisma.service.findFirst({
+    if (data.service_name) {
+      const existingService = await prisma.service.findFirst({
         where: {
-          service_category_name: data.service_category_name,
-          service_category_id: { not: BigInt(service_category_id) },
+          service_name: data.service_name,
+          service_id: { not: BigInt(service_id) },
         },
       });
 
-      if (existingCategory) {
-        throw new AppError('Já existe outra categoria com este nome', 409);
+      if (existingService) {
+        throw new AppError('Já existe outro serviço com este nome', 409);
       }
     }
 
     const updateData: any = {};
-    if (data.service_category_name !== undefined) updateData.service_category_name = data.service_category_name;
+    if (data.service_name !== undefined) updateData.service_name = data.service_name;
     if (data.service_cost !== undefined) updateData.service_cost = data.service_cost;
     if (data.is_active !== undefined) updateData.is_active = data.is_active;
 
     return await prisma.service.update({
-      where: { service_category_id: BigInt(service_category_id) },
+      where: { service_id: BigInt(service_id) },
       data: updateData,
     });
   }
 
-  async delete(service_category_id: bigint | number) {
-    await this.getById(service_category_id);
+  async delete(service_id: bigint | number) {
+    await this.getById(service_id);
 
     // Verificar se há ordens de serviço ou serviços realizados vinculados
     const ordersCount = await prisma.service_order.count({
       where: {
-        service_category_id: BigInt(service_category_id),
+        service_id: BigInt(service_id),
         is_active: true,
       },
     });
 
     const servicesCount = await prisma.services_realized.count({
       where: {
-        service_category_id: BigInt(service_category_id),
+        service_id: BigInt(service_id),
         is_active: true,
       },
     });
 
     if (ordersCount > 0 || servicesCount > 0) {
       throw new AppError(
-        'Não é possível excluir esta categoria pois existem ordens de serviço ou serviços vinculados a ela',
+        'Não é possível excluir este serviço pois existem ordens de serviço ou serviços vinculados a ele',
         400
       );
     }
 
     // Soft delete - apenas marca como inativo
     return await prisma.service.update({
-      where: { service_category_id: BigInt(service_category_id) },
+      where: { service_id: BigInt(service_id) },
       data: { is_active: false },
     });
   }
 
-  async getWithStats(service_category_id: bigint | number) {
-    const category = await this.getById(service_category_id);
+  async getWithStats(service_id: bigint | number) {
+    const service = await this.getById(service_id);
 
     const ordersCount = await prisma.service_order.count({
       where: {
-        service_category_id: BigInt(service_category_id),
+        service_id: BigInt(service_id),
         is_active: true,
       },
     });
 
     const servicesRealizedCount = await prisma.services_realized.count({
       where: {
-        service_category_id: BigInt(service_category_id),
+        service_id: BigInt(service_id),
         is_active: true,
       },
     });
 
     const totalRevenue = await prisma.services_realized.aggregate({
       where: {
-        service_category_id: BigInt(service_category_id),
+        service_id: BigInt(service_id),
         is_active: true,
       },
       _sum: {
@@ -146,10 +146,10 @@ export class ServiceCategoryService {
       },
     });
 
-    const estimatedRevenue = Number(totalRevenue._sum.service_qtd || 0) * Number(category.service_cost);
+    const estimatedRevenue = Number(totalRevenue._sum.service_qtd || 0) * Number(service.service_cost);
 
     return {
-      ...category,
+      ...service,
       stats: {
         total_orders: ordersCount,
         total_services_realized: servicesRealizedCount,

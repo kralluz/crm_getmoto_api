@@ -21,8 +21,8 @@ export const StockMovementTypeEnum = z.enum(['ENTRY', 'EXIT', 'ADJUSTMENT']);
 export const createProductSchema = z.object({
   category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')),
   product_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo'),
-  quantity: z.coerce.number().min(0, 'Quantidade deve ser positiva').default(0),
-  quantity_alert: z.coerce.number().min(0, 'Quantidade de alerta deve ser positiva').default(0),
+  quantity: z.coerce.number().int('Quantidade deve ser um número inteiro').min(0, 'Quantidade deve ser positiva').default(0),
+  quantity_alert: z.coerce.number().int('Quantidade de alerta deve ser um número inteiro').min(0, 'Quantidade de alerta deve ser positiva').default(0),
   buy_price: z.coerce.number().min(0, 'Preço de compra deve ser positivo'),
   sell_price: z.coerce.number().min(0, 'Preço de venda deve ser positivo'),
   is_active: z.boolean().default(true),
@@ -34,8 +34,8 @@ export const createProductSchema = z.object({
 export const updateProductSchema = z.object({
   category_id: z.coerce.bigint().or(z.coerce.number().int().positive('ID da categoria deve ser positivo')).optional(),
   product_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(255, 'Nome muito longo').optional(),
-  quantity: z.coerce.number().min(0, 'Quantidade deve ser positiva').optional(),
-  quantity_alert: z.coerce.number().min(0, 'Quantidade de alerta deve ser positiva').optional(),
+  quantity: z.coerce.number().int('Quantidade deve ser um número inteiro').min(0, 'Quantidade deve ser positiva').optional(),
+  quantity_alert: z.coerce.number().int('Quantidade de alerta deve ser um número inteiro').min(0, 'Quantidade de alerta deve ser positiva').optional(),
   buy_price: z.coerce.number().min(0, 'Preço de compra deve ser positivo').optional(),
   sell_price: z.coerce.number().min(0, 'Preço de venda deve ser positivo').optional(),
   is_active: z.boolean().optional(),

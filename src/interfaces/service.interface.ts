@@ -27,7 +27,7 @@ export type ServiceRealizedResponse = z.infer<typeof serviceRealizedResponseSche
 // Types adicionais para operações de ordem de serviço
 export interface AddServiceToOrderInput {
   service_order_id: bigint | number;
-  service_category_id: bigint | number;
+  service_id: bigint | number;
   service_qtd: number;
 }
 

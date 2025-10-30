@@ -11,8 +11,8 @@ export class ServiceService {
       include: {
         service: {
           select: {
-            service_category_id: true,
-            service_category_name: true,
+            service_id: true,
+            service_name: true,
             service_cost: true,
           },
         },
@@ -54,8 +54,8 @@ export class ServiceService {
       include: {
         service: {
           select: {
-            service_category_id: true,
-            service_category_name: true,
+            service_id: true,
+            service_name: true,
             service_cost: true,
           },
         },
@@ -90,8 +90,8 @@ export class ServiceService {
           include: {
             service: {
               select: {
-                service_category_id: true,
-                service_category_name: true,
+                service_id: true,
+                service_name: true,
                 service_cost: true,
               },
             },
@@ -108,8 +108,8 @@ export class ServiceService {
       include: {
         service: {
           select: {
-            service_category_id: true,
-            service_category_name: true,
+            service_id: true,
+            service_name: true,
             service_cost: true,
           },
         },
@@ -145,8 +145,8 @@ export class ServiceService {
           include: {
             service: {
               select: {
-                service_category_id: true,
-                service_category_name: true,
+                service_id: true,
+                service_name: true,
                 service_cost: true,
               },
             },
@@ -185,8 +185,8 @@ export class ServiceService {
       include: {
         service: {
           select: {
-            service_category_id: true,
-            service_category_name: true,
+            service_id: true,
+            service_name: true,
             service_cost: true,
           },
         },
