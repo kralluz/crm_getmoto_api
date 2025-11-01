@@ -10,8 +10,13 @@ export class ServiceController {
   }
 
   async getAll(req: Request, res: Response) {
-    const { status, customer_name } = req.query;
-    const services = await serviceService.getAll(status as string, customer_name as string);
+    const { status, customer_name, startDate, endDate } = req.query;
+    const services = await serviceService.getAll(
+      status as string,
+      customer_name as string,
+      startDate as string,
+      endDate as string
+    );
     return res.json(services);
   }
 

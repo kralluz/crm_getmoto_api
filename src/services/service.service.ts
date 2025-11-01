@@ -31,7 +31,7 @@ export class ServiceService {
     return service;
   }
 
-  async getAll(status?: string, customer_name?: string) {
+  async getAll(status?: string, customer_name?: string, startDate?: string, endDate?: string) {
     const where: any = {
       is_active: true,
     };
@@ -47,6 +47,20 @@ export class ServiceService {
         contains: customer_name,
         mode: 'insensitive',
       };
+    }
+
+    // Filtro por data de criação
+    if (startDate || endDate) {
+      where.created_at = {};
+      if (startDate) {
+        where.created_at.gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Adiciona 23:59:59 ao endDate para incluir o dia completo
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        where.created_at.lte = endDateTime;
+      }
     }
 
     return await prisma.service_order.findMany({

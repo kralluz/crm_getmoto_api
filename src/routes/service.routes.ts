@@ -93,11 +93,22 @@ router.post('/',
  *           enum: [PENDING, IN_PROGRESS, COMPLETED, CANCELLED, WAITING_PARTS]
  *         description: Filtrar por status
  *       - in: query
- *         name: customerId
+ *         name: customer_name
  *         schema:
  *           type: string
- *           format: uuid
- *         description: Filtrar por cliente
+ *         description: Filtrar por nome do cliente (busca parcial)
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Data inicial (filtro por data de criação)
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Data final (filtro por data de criação)
  *     responses:
  *       200:
  *         description: Lista de serviços
